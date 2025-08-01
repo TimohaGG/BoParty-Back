@@ -1,0 +1,64 @@
+2025-07-21T21:51:01.653+03:00  INFO 54397 --- [main] c.b.s.SpringBootSecurityJwtApplication   : Starting SpringBootSecurityJwtApplication using Java 23.0.2 with PID 54397 (/Users/tymofiishulha/Documents/Magazine/spring-boot-spring-security-jwt-authentication-master/target/classes started by tymofiishulha in /Users/tymofiishulha/Documents/Magazine/spring-boot-spring-security-jwt-authentication-master)
+2025-07-21T21:51:01.654+03:00  INFO 54397 --- [main] c.b.s.SpringBootSecurityJwtApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-07-21T21:51:01.908+03:00  INFO 54397 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-21T21:51:01.931+03:00  INFO 54397 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 20 ms. Found 2 JPA repository interfaces.
+2025-07-21T21:51:02.155+03:00  INFO 54397 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2025-07-21T21:51:02.159+03:00  INFO 54397 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-21T21:51:02.159+03:00  INFO 54397 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.8]
+2025-07-21T21:51:02.186+03:00  INFO 54397 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-21T21:51:02.186+03:00  INFO 54397 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 511 ms
+2025-07-21T21:51:02.237+03:00  INFO 54397 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-21T21:51:02.258+03:00  INFO 54397 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.2.Final
+2025-07-21T21:51:02.259+03:00  INFO 54397 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2025-07-21T21:51:02.305+03:00  INFO 54397 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2025-07-21T21:51:02.351+03:00  INFO 54397 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-21T21:51:02.357+03:00  INFO 54397 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-07-21T21:51:03.094+03:00  INFO 54397 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@59fea5f5
+2025-07-21T21:51:03.097+03:00  INFO 54397 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-07-21T21:51:03.269+03:00  INFO 54397 --- [main] org.hibernate.orm.dialect                : HHH035001: Using dialect: org.hibernate.dialect.MySQLDialect, version: 8.0.41
+2025-07-21T21:51:03.382+03:00  INFO 54397 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2025-07-21T21:51:03.699+03:00  INFO 54397 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2025-07-21T21:51:07.393+03:00  INFO 54397 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-21T21:51:07.675+03:00  WARN 54397 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-21T21:51:07.817+03:00  INFO 54397 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@686ace1f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7dd92a36, org.springframework.security.web.context.SecurityContextHolderFilter@56e9126f, org.springframework.security.web.header.HeaderWriterFilter@121b7a95, org.springframework.web.filter.CorsFilter@531ed68e, org.springframework.security.web.authentication.logout.LogoutFilter@6e140753, com.bezkoder.springjwt.security.jwt.AuthTokenFilter@1d1da00b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@579cfcc4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@57eb2555, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@551976c2, org.springframework.security.web.session.SessionManagementFilter@4e6add8d, org.springframework.security.web.access.ExceptionTranslationFilter@2bfe4df9, org.springframework.security.web.access.intercept.AuthorizationFilter@5d1907fb]
+2025-07-21T21:51:07.939+03:00  INFO 54397 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2025-07-21T21:51:07.943+03:00  INFO 54397 --- [main] c.b.s.SpringBootSecurityJwtApplication   : Started SpringBootSecurityJwtApplication in 6.452 seconds (process running for 6.724)
+2025-07-21T21:51:11.069+03:00  INFO 54397 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-21T21:51:11.069+03:00  INFO 54397 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-21T21:51:11.070+03:00  INFO 54397 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-07-21T21:51:11.367+03:00 ERROR 54397 --- [http-nio-8080-exec-1] c.b.s.s.ExceptionHandlerController       : Email is already in use
+2025-07-21T21:52:47.767+03:00  INFO 54397 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-21T21:52:47.772+03:00  INFO 54397 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-21T21:52:48.378+03:00  INFO 54397 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-07-21T21:52:49.720+03:00  INFO 54405 --- [main] c.b.s.SpringBootSecurityJwtApplication   : Starting SpringBootSecurityJwtApplication using Java 23.0.2 with PID 54405 (/Users/tymofiishulha/Documents/Magazine/spring-boot-spring-security-jwt-authentication-master/target/classes started by tymofiishulha in /Users/tymofiishulha/Documents/Magazine/spring-boot-spring-security-jwt-authentication-master)
+2025-07-21T21:52:49.721+03:00  INFO 54405 --- [main] c.b.s.SpringBootSecurityJwtApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-07-21T21:52:50.013+03:00  INFO 54405 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-21T21:52:50.039+03:00  INFO 54405 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 2 JPA repository interfaces.
+2025-07-21T21:52:50.266+03:00  INFO 54405 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2025-07-21T21:52:50.270+03:00  INFO 54405 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-21T21:52:50.270+03:00  INFO 54405 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.8]
+2025-07-21T21:52:50.302+03:00  INFO 54405 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-21T21:52:50.302+03:00  INFO 54405 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 559 ms
+2025-07-21T21:52:50.356+03:00  INFO 54405 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-21T21:52:50.381+03:00  INFO 54405 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.2.Final
+2025-07-21T21:52:50.382+03:00  INFO 54405 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2025-07-21T21:52:50.431+03:00  INFO 54405 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2025-07-21T21:52:50.482+03:00  INFO 54405 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-21T21:52:50.489+03:00  INFO 54405 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-07-21T21:52:51.260+03:00  INFO 54405 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@a2df0d5
+2025-07-21T21:52:51.263+03:00  INFO 54405 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-07-21T21:52:51.435+03:00  INFO 54405 --- [main] org.hibernate.orm.dialect                : HHH035001: Using dialect: org.hibernate.dialect.MySQLDialect, version: 8.0.41
+2025-07-21T21:52:51.559+03:00  INFO 54405 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2025-07-21T21:52:51.868+03:00  INFO 54405 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2025-07-21T21:52:55.622+03:00  INFO 54405 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-21T21:52:55.877+03:00  WARN 54405 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-21T21:52:56.019+03:00  INFO 54405 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7dd92a36, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@531ed68e, org.springframework.security.web.context.SecurityContextHolderFilter@4e773b8a, org.springframework.security.web.header.HeaderWriterFilter@7aa62a90, org.springframework.web.filter.CorsFilter@551976c2, org.springframework.security.web.authentication.logout.LogoutFilter@53bc6492, com.bezkoder.springjwt.security.jwt.AuthTokenFilter@7b6b8cea, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@57eb2555, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@490f2fad, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6bbd4048, org.springframework.security.web.session.SessionManagementFilter@23974cac, org.springframework.security.web.access.ExceptionTranslationFilter@4f466207, org.springframework.security.web.access.intercept.AuthorizationFilter@6079d219]
+2025-07-21T21:52:56.142+03:00  INFO 54405 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2025-07-21T21:52:56.146+03:00  INFO 54405 --- [main] c.b.s.SpringBootSecurityJwtApplication   : Started SpringBootSecurityJwtApplication in 6.625 seconds (process running for 6.979)
+2025-07-21T21:53:06.922+03:00  INFO 54405 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-21T21:53:06.922+03:00  INFO 54405 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-21T21:53:06.924+03:00  INFO 54405 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-07-21T21:53:07.267+03:00 ERROR 54405 --- [http-nio-8080-exec-1] c.b.s.s.ExceptionHandlerController       : Email is already in use
+2025-07-21T23:29:05.226+03:00  INFO 54405 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-21T23:29:05.260+03:00  INFO 54405 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-21T23:29:05.876+03:00  INFO 54405 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
