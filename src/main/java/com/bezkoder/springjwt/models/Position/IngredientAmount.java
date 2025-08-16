@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.models.Position;
 
+import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -90,4 +91,14 @@ public class IngredientAmount {
     }
 
 
+    public IngAmountRequestDto toDTO() {
+        return IngAmountRequestDto
+                .builder()
+                .id(id)
+                .amount(amount)
+                .unit(unit.getUnitName())
+                .ingredient(ingredient.toAmountRequestDto())
+                .build();
+
+    }
 }

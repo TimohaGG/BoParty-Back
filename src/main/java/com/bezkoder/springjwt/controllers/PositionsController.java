@@ -3,20 +3,21 @@ package com.bezkoder.springjwt.controllers;
 import ch.qos.logback.core.model.Model;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.User.User;
-import com.bezkoder.springjwt.payload.response.Positions.PositionCreateDto;
+import com.bezkoder.springjwt.payload.response.Positions.CategoryResponseDto;
+import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
 import com.bezkoder.springjwt.payload.response.Positions.PositionResponseDto;
-import com.bezkoder.springjwt.security.Exceptions.NoContentException;
+import com.bezkoder.springjwt.security.Exceptions.PositionCreateException;
 import com.bezkoder.springjwt.security.services.PositionsService;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/positions")
@@ -39,8 +40,21 @@ public class PositionsController {
     }
 
     @PostMapping( "/add")
-    public ResponseEntity<Position> addPosition(@ModelAttribute PositionCreateDto position) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<PositionResponseDto> addPosition(@RequestParam(required = false) MultipartFile image, @RequestParam String position) {
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            PositionCreateDto positionCreateDto = objectMapper.readValue(position, PositionCreateDto.class);
+            Position res = this.positionsService.addPosition(positionCreateDto, image);
+            return new ResponseEntity<>(res.toResponseDto(),HttpStatus.OK);
+        }catch (JsonProcessingException e){
+            throw new PositionCreateException("Cannot parse position");
+        }
+    }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<Long> removePosition(@RequestParam Long id) {
+        return ResponseEntity.ok(this.positionsService.removePosition(id));
+
     }
 
 

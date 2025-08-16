@@ -1,24 +1,33 @@
 package com.bezkoder.springjwt.models.Position;
 
 import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.payload.response.Positions.PositionAmountResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class PositionAmount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Position position;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Orders order;
     private int amount;
+
+    @Column(nullable = true)
+    private String title;
 
     public static PositionAmount copyPositionAmount(PositionAmount old, Orders order){
         PositionAmount positionAmount = new PositionAmount();
@@ -44,9 +53,6 @@ public class PositionAmount {
     }
 
 
-    public void setPosition(Position position) {
-        this.position = position;
-    }
 
     public long getPositionId(){
         return position.getId();
@@ -56,36 +62,22 @@ public class PositionAmount {
         this.amount += amount;
     }
 
-    public void setAmount(int amount){
-        this.amount = amount;
-    }
-    public int getAmount(){
-        return amount;
-    }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-
-    public Orders getOrder() {
-        return order;
-    }
 
     public String getPosName() {
         return position.getName();
-    }
-
-    public void setOrder(Orders order) {
-        this.order = order;
     }
 
     public void removeId(){
         id = null;
     }
 
+    public PositionAmountResponse toDto(){
+        return PositionAmountResponse.builder()
+                .position(position.toResponseDto())
+                .amount(amount)
+                .title(title)
+                .build();
+    }
 
 }

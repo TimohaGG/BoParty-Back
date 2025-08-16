@@ -64,4 +64,27 @@ public class ExceptionHandlerController {
         logger.log(Level.SEVERE, e.getMessage());
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler({PositionCreateException.class})
+    public ResponseEntity<ExceptionMessage> handleException(PositionCreateException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({PositionDeleteException.class})
+    public ResponseEntity<ExceptionMessage> handleException(PositionDeleteException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({OrderCreateException.class})
+    public ResponseEntity<ExceptionMessage> handleException(OrderCreateException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
+
 }

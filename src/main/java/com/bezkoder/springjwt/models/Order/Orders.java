@@ -3,8 +3,11 @@ package com.bezkoder.springjwt.models.Order;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.response.Orders.OrderCardResponse;
+import com.bezkoder.springjwt.payload.response.Orders.OrderResponse;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -21,6 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Orders {
 
     @Id
@@ -63,17 +67,20 @@ public class Orders {
         return Math.floor(totalPrice - totalPrice * (1-taxPercentage)) ;
     }
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<PositionAmount> positionsAmount;
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY)
-    private List<OrderAdditionalInfo> additionalInfo;
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
+    private List<PositionAmount> positionsAmount = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)
+    private List<OrderAdditionalInfo> additionalInfo = new  ArrayList<>();
+
 
     @Getter
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ShoppingList shoppingList;
     @ColumnDefault("false")
     private boolean temporary;
@@ -137,5 +144,19 @@ public class Orders {
                 .id(order.getId())
                 .sum(order.getTotalPrice())
                 .build();
+    }
+
+    public static OrderResponse toDto(Orders order){
+        System.out.println(order.getTotalPrice());
+        return OrderResponse.builder()
+                .id(order.getId())
+                .date(order.getDate())
+                .client(order.getClient())
+                .guestsAmount(order.getGuestsAmount())
+                .duration(order.getDuration())
+                .format(order.getFormat())
+                .phone(order.getPhone())
+                .totalPrice(order.getTotalPrice())
+                .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList()).build();
     }
 }

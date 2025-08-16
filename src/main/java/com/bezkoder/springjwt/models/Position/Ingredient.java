@@ -1,6 +1,8 @@
 package com.bezkoder.springjwt.models.Position;
 
 import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
+import com.bezkoder.springjwt.payload.request.Ingredients.IngRequestDto;
 import com.bezkoder.springjwt.payload.response.Ingredients.IngredientResponse;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,6 +30,14 @@ public class Ingredient {
 
     public IngredientResponse toIngredientDto() {
         return IngredientResponse.builder()
+                .id(Id)
+                .name(name)
+                .category(ingCategory.toCategoryDto())
+                .build();
+    }
+
+    public IngRequestDto toAmountRequestDto() {
+        return IngRequestDto.builder()
                 .id(Id)
                 .name(name)
                 .category(ingCategory.toCategoryDto())

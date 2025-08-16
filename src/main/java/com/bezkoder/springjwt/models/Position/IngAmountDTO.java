@@ -1,18 +1,20 @@
 package com.bezkoder.springjwt.models.Position;
 
+import lombok.*;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class IngAmountDTO {
     private Long ingId;
     private Long unitId;
     private double amount;
 
-    public IngAmountDTO() {
-    }
 
-    public IngAmountDTO(Long ingId, Long unitId, double amount) {
-        this.ingId = ingId;
-        this.unitId = unitId;
-        this.amount = amount;
-    }
+
+
 
     public Long getIngId() {
         return ingId;

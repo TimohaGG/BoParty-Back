@@ -1,16 +1,24 @@
 package com.bezkoder.springjwt.security.services;
 
 import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.models.Position.Position;
+import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.payload.request.Orders.OrderCreateRequest;
+import com.bezkoder.springjwt.payload.request.Orders.OrderEditRequest;
+import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.repository.IAdditionalInfoRepos;
 import com.bezkoder.springjwt.repository.OrdersRepos;
 import com.bezkoder.springjwt.repository.PositionAmountRepos;
+import com.bezkoder.springjwt.repository.PositionsRepos;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
+import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -25,15 +33,17 @@ public class OrdersService {
     private final OrdersRepos ordersRepos;
     private final IAdditionalInfoRepos iAdditionalInfoRepos;
     private final PositionAmountRepos positionAmountRepos;
+    private final PositionsRepos positionsRepos;
     private UserDetailsServiceImpl userService;
 
     @Autowired
-    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos) {
+    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos) {
         this.ordersRepos = ordersRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
         this.positionAmountRepos = positionAmountRepos;
 
+        this.positionsRepos = positionsRepos;
     }
 
     public List<Orders> getOrdersByUserId(Long userId) {
@@ -47,6 +57,89 @@ public class OrdersService {
             throw new NoContentException("There are no orders");
         }
         return res;
+    }
+
+    public Orders createOrder(OrderCreateRequest order) {
+        Orders newOrder = Orders.builder()
+                .client(order.getClient())
+                .date(LocalDate.parse(order.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        .atStartOfDay())
+                .phone(order.getPhoneNumber())
+                .duration(order.getDuration())
+                .guestsAmount(order.getGuestsAmount())
+                .format(order.getFormat())
+                .user(this.userService.getCurrentUser())
+                .build();
+        List<PositionAmount> positionAmounts = new ArrayList<>();
+        for (PosAmountRequest pos: order.getPositions()){
+            PositionAmount posAmount = new PositionAmount();
+            posAmount.setPosition(this.positionsRepos.findById(pos.getPosId()).orElseThrow(()-> new NoContentException("Position Not Found")));
+            posAmount.setAmount(pos.getAmount());
+            posAmount.setTitle(pos.getTitle());
+
+            positionAmounts.add(posAmount);
+        }
+        try{
+            Orders tmp =  ordersRepos.save(newOrder);
+            positionAmounts.forEach(el -> el.setOrder(tmp));
+            tmp.setPositionsAmount(positionAmounts);
+            return ordersRepos.save(newOrder);
+        }catch (Exception e){
+            throw new OrderCreateException(e.getMessage());
+        }
+
+    }
+
+    public Orders getOrderById(long id) {
+        return this.ordersRepos.findById(id).orElseThrow(()-> new NoContentException("Order Not Found"));
+    }
+
+    public Orders editOrder(OrderEditRequest request) {
+        Orders order = this.getOrderById(request.getId());
+
+        order.setDate(LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                .atStartOfDay()); // adjust parsing if datetime
+        order.setClient(request.getClient());
+        order.setGuestsAmount(request.getGuestsAmount());
+        order.setDuration(request.getDuration());
+        order.setFormat(request.getFormat());
+        order.setPhone(request.getPhoneNumber());
+
+
+        for (PositionAmount pos: order.getPositionsAmount()){
+            order.removePosition(pos);
+        }
+
+        List<PositionAmount> positionAmounts = new ArrayList<>();
+        for (PosAmountRequest posReq : request.getPositions()) {
+            PositionAmount posAmount = new PositionAmount();
+            posAmount.setOrder(order);
+            posAmount.setAmount(posReq.getAmount());
+
+            if (posReq.getPosId() > 0) {
+                Position position = positionsRepos.findById(posReq.getPosId())
+                        .orElseThrow(() -> new RuntimeException("Position not found with id " + posReq.getPosId()));
+                posAmount.setPosition(position);
+            }
+
+            if (posReq.getTitle() != null && !posReq.getTitle().isBlank()) {
+                posAmount.setTitle(posReq.getTitle());
+            }
+
+            positionAmounts.add(posAmount);
+        }
+
+        for (PositionAmount posReq : positionAmounts) {
+            order.addPosition(posReq);
+        }
+
+        try{
+            return this.ordersRepos.save(order);
+        }catch (Exception e){
+            throw new OrderCreateException(e.getMessage());
+        }
+
+
     }
 
 //    public List<Orders> getTempOrders(){

@@ -1,27 +1,33 @@
 package com.bezkoder.springjwt.security.services;
 
-import com.bezkoder.springjwt.models.Order.Orders;
 import com.bezkoder.springjwt.models.Position.*;
+import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
+import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
 import com.bezkoder.springjwt.repository.*;
+import com.bezkoder.springjwt.security.Exceptions.CategoryNotFoundException;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
+import com.bezkoder.springjwt.security.Exceptions.PositionCreateException;
+import com.bezkoder.springjwt.security.Exceptions.PositionDeleteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PositionsService {
     private final PositionsRepos positionsRepos;
+    private final CategoriesRepos categoriesRepos;
     private final PositionAmountRepos positionAmountRepos;
     private final IIngredientsRepos ingredientsRepos;
     private final IIngAmountRepos ingAmountRepos;
     private final IUnitRepos unitRepos;
     private final IIngCategoryRepos iIngCategoryRepos;
     @Autowired
-    public PositionsService(PositionsRepos positionsRepos, PositionAmountRepos positionAmountRepos, IIngredientsRepos ingredientsRepos, IIngAmountRepos iIngAmountRepos, IUnitRepos unitRepos, IIngCategoryRepos iIngCategoryRepos) {
+    public PositionsService(PositionsRepos positionsRepos, CategoriesRepos categoriesRepos, PositionAmountRepos positionAmountRepos, IIngredientsRepos ingredientsRepos, IIngAmountRepos iIngAmountRepos, IUnitRepos unitRepos, IIngCategoryRepos iIngCategoryRepos) {
         this.positionsRepos = positionsRepos;
+        this.categoriesRepos = categoriesRepos;
         this.positionAmountRepos = positionAmountRepos;
         this.ingredientsRepos = ingredientsRepos;
         this.ingAmountRepos = iIngAmountRepos;
@@ -49,6 +55,56 @@ public class PositionsService {
 
     public Position getPositionById(Long id){
         return positionsRepos.findById(id).orElse(null);
+    }
+
+    public Position addPosition(PositionCreateDto positionCreateDto, MultipartFile image) {
+
+        try{
+            Position position;
+            if(positionCreateDto.getId() != 0){
+                position = positionsRepos.findById(positionCreateDto.getId()).orElseThrow(()->new PositionCreateException("Position id not found"));
+                position.getIngredients().clear();
+            }
+            else
+                position = new Position();
+
+            Category category = this.categoriesRepos.findById(positionCreateDto.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+            position.setName(positionCreateDto.getName());
+            position.setWeight(positionCreateDto.getWeight());
+            position.setPrice(positionCreateDto.getPrice());
+            position.setCategory(category);
+            position.setImage(image==null ? null : image.getBytes());
+
+
+            long id = this.positionsRepos.save(position).getId();
+            position = this.positionsRepos.findById(id).orElseThrow(()->new PositionCreateException("Can't save position"));
+            List<IngredientAmount> ingsAmount = new ArrayList<>();
+            for (IngAmountRequestDto x : positionCreateDto.getIngredients()){
+                IngredientAmount ingredientAmount = new IngredientAmount();
+                ingredientAmount.setAmount(x.getAmount());
+                ingredientAmount.setUnit(this.unitRepos.findByUnitName(x.getUnit()));
+                ingredientAmount.setIngredient(this.ingredientsRepos.findById(x.getIngredient().getId()).orElse(null));
+                ingredientAmount.setPosition(this.positionsRepos.findById(id).orElse(null));
+                ingsAmount.add(ingredientAmount);
+            }
+            position.getIngredients().addAll(ingsAmount);
+
+            return this.positionsRepos.save(position);
+        }catch (Exception e){
+            throw new PositionCreateException("Cannot upload image");
+        }
+
+    }
+
+    public Long removePosition(Long id) {
+        Position position = this.positionsRepos.findById(id).orElseThrow(()->new NoContentException("Position not found"));
+        try{
+            this.positionsRepos.delete(position);
+            return position.getId();
+        }
+        catch (Exception e){
+            throw new PositionDeleteException("Cannot delete position");
+        }
     }
 //
 //    public void save(PositionAmount position){

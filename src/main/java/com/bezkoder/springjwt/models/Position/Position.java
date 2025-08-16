@@ -3,8 +3,7 @@ package com.bezkoder.springjwt.models.Position;
 import com.bezkoder.springjwt.payload.response.Positions.PositionResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -14,6 +13,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 
 public class Position {
     @Id
@@ -26,8 +28,9 @@ public class Position {
     @Column(nullable = false)
     private double price;
 
-@JsonIgnore
+
     @Lob
+    @Column(name = "image", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] image;
 
     @JsonIgnore
@@ -38,12 +41,9 @@ public class Position {
     private Category category;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<IngredientAmount> ingredients;
+    @OneToMany(mappedBy = "position", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<IngredientAmount> ingredients = new  ArrayList<>();
 
-    public Position() {
-
-    }
 
     public Position(String name, Double weight, double price, MultipartFile multipartFile, Category category, List<IngredientAmount> ingredients) {
         this.name = name;
@@ -54,35 +54,6 @@ public class Position {
         this.ingredients = ingredients;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public int getPriceInt(){
-        return (int)price;
-    }
-
-    public byte[] getImage() {
-
-        return image;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
     public String getImageBase64() {
         if(image == null) {
             return "";
@@ -90,51 +61,9 @@ public class Position {
         return Base64.getEncoder().encodeToString(image);
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public List<IngredientAmount> getIngredients() {
-        return ingredients;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public void setImage(byte[] image) {
-        this.image = image;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
     public void setIngredients(List<IngredientAmount> ingredients) {
         this.ingredients = new ArrayList<>();
         this.ingredients = ingredients;
-    }
-
-    public MultipartFile getMultipartFile() {
-        return multipartFile;
-    }
-
-    public void setMultipartFile(MultipartFile multipartFile) {
-        this.multipartFile = multipartFile;
     }
 
     public void addIngredientAmount(IngredientAmount ingredientAmount) {
@@ -150,8 +79,9 @@ public class Position {
                 .name(name)
                 .weight(weight)
                 .price(price)
-                .image(image)
+                .image(image==null ? "": Base64.getEncoder().encodeToString(image))
                 .category(category.toResponseDto())
+                .ingredients(ingredients.stream().map(ing->ing.toDTO()).toList())
                 .build();
     }
 }
