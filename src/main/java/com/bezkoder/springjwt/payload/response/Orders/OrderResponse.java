@@ -33,4 +33,6 @@ public class OrderResponse {
 
     private List<PositionAmountResponse> positions;
 
+    private List<OrderInfoResponse> additionalInfo;
+
 }

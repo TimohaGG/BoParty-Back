@@ -35,6 +35,8 @@ public class Category {
     public CategoryResponseDto toResponseDto(){
         return CategoryResponseDto.builder()
                 .id(id)
-                .name(name).build();
+                .name(name)
+                .userId(user.getId())
+                .build();
     }
 }

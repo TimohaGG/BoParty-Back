@@ -25,4 +25,5 @@ public class OrderCreateRequest {
     private String format;
     private String phoneNumber;
     private List<PosAmountRequest> positions;
+    private List<OrderInfoRequest> additionalInfo;
 }

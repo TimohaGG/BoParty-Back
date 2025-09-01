@@ -66,7 +66,7 @@ public class PdfGenerator {
             summary.put("На 1 особу, грн", new Tuple<>((int) order.getPrice() / order.getGuestsAmount() + " грн",null));
 
         for (OrderAdditionalInfo infoT : order.getAdditionalInfo()) {
-            summary.put(infoT.getTitle(),new Tuple<>( infoT.getDescription () + "\n" + ((int)infoT.getPrice()==0 ? "" : infoT.getPrice() + " грн"),infoT.getImage()));
+//            summary.put(infoT.getTitle(),new Tuple<>( infoT.getDescription () + "\n" + ((int)infoT.getPrice()==0 ? "" : infoT.getPrice() + " грн"),infoT.getImage()));
         }
 
         summary.put("Всього за заходом: ",new Tuple<>(order.getTotalPrice() + " грн",null));

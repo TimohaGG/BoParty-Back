@@ -11,4 +11,5 @@ public class OrderCardResponse {
     private long id;
     private String date;
     private long sum;
+    private String client;
 }

@@ -1,19 +1,20 @@
 package com.bezkoder.springjwt.security.services;
 
+import com.bezkoder.springjwt.models.Order.CommonOrderInfo;
+import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
 import com.bezkoder.springjwt.models.Order.Orders;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.payload.request.Orders.OrderCommonInfoRequest;
 import com.bezkoder.springjwt.payload.request.Orders.OrderCreateRequest;
 import com.bezkoder.springjwt.payload.request.Orders.OrderEditRequest;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
-import com.bezkoder.springjwt.repository.IAdditionalInfoRepos;
-import com.bezkoder.springjwt.repository.OrdersRepos;
-import com.bezkoder.springjwt.repository.PositionAmountRepos;
-import com.bezkoder.springjwt.repository.PositionsRepos;
+import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,15 +36,17 @@ public class OrdersService {
     private final PositionAmountRepos positionAmountRepos;
     private final PositionsRepos positionsRepos;
     private UserDetailsServiceImpl userService;
+    private final ICommonInfoRepos commonInfoRepos;
 
     @Autowired
-    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos) {
+    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos) {
         this.ordersRepos = ordersRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
         this.positionAmountRepos = positionAmountRepos;
 
         this.positionsRepos = positionsRepos;
+        this.commonInfoRepos = commonInfoRepos;
     }
 
     public List<Orders> getOrdersByUserId(Long userId) {
@@ -69,6 +72,7 @@ public class OrdersService {
                 .guestsAmount(order.getGuestsAmount())
                 .format(order.getFormat())
                 .user(this.userService.getCurrentUser())
+//                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList())
                 .build();
         List<PositionAmount> positionAmounts = new ArrayList<>();
         for (PosAmountRequest pos: order.getPositions()){
@@ -76,18 +80,25 @@ public class OrdersService {
             posAmount.setPosition(this.positionsRepos.findById(pos.getPosId()).orElseThrow(()-> new NoContentException("Position Not Found")));
             posAmount.setAmount(pos.getAmount());
             posAmount.setTitle(pos.getTitle());
-
             positionAmounts.add(posAmount);
         }
         try{
             Orders tmp =  ordersRepos.save(newOrder);
             positionAmounts.forEach(el -> el.setOrder(tmp));
             tmp.setPositionsAmount(positionAmounts);
-            return ordersRepos.save(newOrder);
+            List<OrderAdditionalInfo> info = order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).collect(Collectors.toList());
+            info.forEach(el->el.setOrder(tmp));
+            tmp.setAdditionalInfo(info);
+
+            return ordersRepos.save(tmp);
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
         }
 
+    }
+
+    private void saveInfo(List<OrderAdditionalInfo> data){
+        this.iAdditionalInfoRepos.saveAll(data);
     }
 
     public Orders getOrderById(long id) {
@@ -140,6 +151,32 @@ public class OrdersService {
         }
 
 
+    }
+
+    public CommonOrderInfo createCommonInfo(OrderCommonInfoRequest info) {
+        CommonOrderInfo res = CommonOrderInfo.builder()
+                .title(info.getTitle())
+                .description(info.getDescription())
+                .price(info.getPrice())
+                .build();
+
+        try{
+            return this.commonInfoRepos.save(res);
+        }
+        catch (Exception e){
+            throw new OrderCreateException(e.getMessage());
+        }
+
+
+    }
+
+    public List<CommonOrderInfo> getAllCommonInfo() {
+        return this.commonInfoRepos.findAll();
+    }
+
+    public long deleteById(Long id) {
+        this.ordersRepos.deleteById(id);
+        return id;
     }
 
 //    public List<Orders> getTempOrders(){

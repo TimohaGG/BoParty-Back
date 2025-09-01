@@ -16,8 +16,8 @@ public class CategoriesService {
         this.categoriesRepos = igsService;
     }
 
-    public List<CategoryResponseDto> getAll(){
-        List<CategoryResponseDto> res = this.categoriesRepos.findAll().stream().map(Category::toResponseDto).toList();
+    public List<CategoryResponseDto> getAll(long userId){
+        List<CategoryResponseDto> res = this.categoriesRepos.findAllByUserId(userId).stream().map(Category::toResponseDto).toList();
         if(res.isEmpty()){
             throw new NoContentException("There are no categories");
         }

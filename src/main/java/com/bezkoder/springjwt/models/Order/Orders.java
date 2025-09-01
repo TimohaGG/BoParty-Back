@@ -72,7 +72,7 @@ public class Orders {
     private List<PositionAmount> positionsAmount = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade=CascadeType.ALL,orphanRemoval = true)
     private List<OrderAdditionalInfo> additionalInfo = new  ArrayList<>();
 
 
@@ -143,6 +143,7 @@ public class Orders {
                 .date(order.getDateFormatted())
                 .id(order.getId())
                 .sum(order.getTotalPrice())
+                .client(order.getClient())
                 .build();
     }
 
@@ -157,6 +158,8 @@ public class Orders {
                 .format(order.getFormat())
                 .phone(order.getPhone())
                 .totalPrice(order.getTotalPrice())
-                .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList()).build();
+                .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
+                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::toResponse).toList())
+                .build();
     }
 }
