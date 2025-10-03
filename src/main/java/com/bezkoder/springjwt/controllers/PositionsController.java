@@ -39,6 +39,13 @@ public class PositionsController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping("/get/category/{categoryId}")
+    public ResponseEntity<List<PositionResponseDto>> getPositionsByCategory(@PathVariable Long categoryId) {
+        User current = this.userDetailsService.getCurrentUser();
+        List<PositionResponseDto> res = positionsService.getAllPositionsByCategoryId(categoryId).stream().map(Position::toResponseDto).toList();
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @PostMapping( "/add")
     public ResponseEntity<PositionResponseDto> addPosition(@RequestParam(required = false) MultipartFile image, @RequestParam String position) {
         try{

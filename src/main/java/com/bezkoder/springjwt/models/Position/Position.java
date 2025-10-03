@@ -41,7 +41,7 @@ public class Position {
     private Category category;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "position", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IngredientAmount> ingredients = new  ArrayList<>();
 
 

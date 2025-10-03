@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.payload.request.Orders;
 
+import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,5 +22,6 @@ public class OrderEditRequest {
     private String format;
     private String phoneNumber;
     private List<PosAmountRequest> positions;
+    private List<OrderInfoRequest> additionalInfo;
 
 }

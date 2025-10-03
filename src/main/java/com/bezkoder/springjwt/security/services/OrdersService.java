@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.security.services;
 
 import com.bezkoder.springjwt.models.Order.CommonOrderInfo;
 import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
+import com.bezkoder.springjwt.models.Order.OrderInfo;
 import com.bezkoder.springjwt.models.Order.Orders;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
@@ -9,6 +10,7 @@ import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.request.Orders.OrderCommonInfoRequest;
 import com.bezkoder.springjwt.payload.request.Orders.OrderCreateRequest;
 import com.bezkoder.springjwt.payload.request.Orders.OrderEditRequest;
+import com.bezkoder.springjwt.payload.request.Orders.OrderInfoRequest;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
@@ -139,10 +141,15 @@ public class OrdersService {
 
             positionAmounts.add(posAmount);
         }
-
         for (PositionAmount posReq : positionAmounts) {
             order.addPosition(posReq);
         }
+
+        for(OrderAdditionalInfo info : order.getAdditionalInfo()){
+            order.removeInfo(info);
+        }
+        List<OrderAdditionalInfo> additionalInfo = request.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList();
+        additionalInfo.forEach(el->{el.setOrder(order);order.addInfo(el);});
 
         try{
             return this.ordersRepos.save(order);

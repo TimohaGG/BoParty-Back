@@ -72,7 +72,7 @@ public class Orders {
     private List<PositionAmount> positionsAmount = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade=CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
     private List<OrderAdditionalInfo> additionalInfo = new  ArrayList<>();
 
 
@@ -161,5 +161,14 @@ public class Orders {
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
                 .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::toResponse).toList())
                 .build();
+    }
+
+    public void removeInfo(OrderAdditionalInfo info) {
+        this.additionalInfo.remove(info);
+        info.setOrder(null);
+    }
+
+    public void addInfo(OrderAdditionalInfo el) {
+        this.additionalInfo.add(el);
     }
 }

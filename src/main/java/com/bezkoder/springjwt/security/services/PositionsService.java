@@ -52,6 +52,20 @@ public class PositionsService {
 
         return res;
     }
+    public List<Position> getAllPositionsByCategoryId(Long categoryId) {
+        List<Position> res;
+        if(categoryId == 0){
+            if(this.categoriesRepos.findAll().isEmpty()){
+                throw new NoContentException("No categories found");
+            }
+            categoryId = this.categoriesRepos.findAll().get(0).getId();
+        }
+        res = positionsRepos.findAllByCategoryId(categoryId);
+        if(res.isEmpty()){
+            throw new NoContentException("No positions found");
+        }
+        return res;
+    }
 
     public Position getPositionById(Long id){
         return positionsRepos.findById(id).orElse(null);
@@ -106,6 +120,8 @@ public class PositionsService {
             throw new PositionDeleteException("Cannot delete position");
         }
     }
+
+
 //
 //    public void save(PositionAmount position){
 //        positionAmountRepos.save(position);

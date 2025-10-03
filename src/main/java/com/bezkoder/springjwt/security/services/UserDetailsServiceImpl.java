@@ -37,10 +37,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public User getCurrentUser() {
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-       var us = authentication.getDetails();
-       var uss = authentication.getPrincipal();
-
         UserDetailsImpl usr = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByUsername(usr.getUsername()).orElse(null);
     }
