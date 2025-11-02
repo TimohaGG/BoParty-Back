@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.security;
 
+import com.bezkoder.springjwt.models.PdfConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -99,5 +100,10 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
+  }
+
+  @Bean
+  public PdfConfig pdfConfig() {
+    return new PdfConfig();
   }
 }

@@ -4,6 +4,7 @@ import com.bezkoder.springjwt.models.Order.CommonOrderInfo;
 import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
 import com.bezkoder.springjwt.models.Order.OrderInfo;
 import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
@@ -15,11 +16,14 @@ import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
+import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
+import com.itextpdf.text.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,9 +43,11 @@ public class OrdersService {
     private final PositionsRepos positionsRepos;
     private UserDetailsServiceImpl userService;
     private final ICommonInfoRepos commonInfoRepos;
+    private final PdfConfig pdfConfig;
+
 
     @Autowired
-    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos) {
+    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig) {
         this.ordersRepos = ordersRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
@@ -49,6 +55,7 @@ public class OrdersService {
 
         this.positionsRepos = positionsRepos;
         this.commonInfoRepos = commonInfoRepos;
+        this.pdfConfig = pdfConfig;
     }
 
     public List<Orders> getOrdersByUserId(Long userId) {
@@ -184,6 +191,12 @@ public class OrdersService {
     public long deleteById(Long id) {
         this.ordersRepos.deleteById(id);
         return id;
+    }
+
+    public ByteArrayOutputStream generateOrderPdf(Long id) {
+        Orders order = this.getOrderById(id);
+        return order.toPdf(pdfConfig);
+
     }
 
 //    public List<Orders> getTempOrders(){

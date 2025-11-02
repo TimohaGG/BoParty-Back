@@ -71,7 +71,7 @@ public class PdfGenerator {
 
         summary.put("Всього за заходом: ",new Tuple<>(order.getTotalPrice() + " грн",null));
 
-        try (InputStream fontStream = new ClassPathResource("static/asserts/fonts/Arial Unicode.ttf").getInputStream()) {
+        try (InputStream fontStream = new ClassPathResource("fonts/Arial Unicode.ttf").getInputStream()) {
             BaseFont baseFont = BaseFont.createFont("Arial Unicode.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontStream.readAllBytes(), null);
             mainFont = new Font(baseFont, 16, Font.NORMAL, BaseColor.BLACK);
         } catch (IOException | DocumentException e) {
@@ -79,7 +79,7 @@ public class PdfGenerator {
         }
 
         // Load the bold font
-        try (InputStream boldFontStream = new ClassPathResource("static/asserts/fonts/ArialMT.ttf").getInputStream()) {
+        try (InputStream boldFontStream = new ClassPathResource("fonts/ArialMT.ttf").getInputStream()) {
             BaseFont boldBaseFont = BaseFont.createFont("ArialMT.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, boldFontStream.readAllBytes(), null);
             boldFont = new Font(boldBaseFont, 20, Font.BOLD, BaseColor.WHITE);
             blackBoldFont = new Font(boldBaseFont, 16, Font.BOLD, BaseColor.BLACK);

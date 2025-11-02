@@ -1,18 +1,32 @@
 package com.bezkoder.springjwt.models.Order;
 
+import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.response.Orders.OrderCardResponse;
 import com.bezkoder.springjwt.payload.response.Orders.OrderResponse;
+import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -170,5 +184,67 @@ public class Orders {
 
     public void addInfo(OrderAdditionalInfo el) {
         this.additionalInfo.add(el);
+    }
+
+    public ByteArrayOutputStream toPdf(PdfConfig pdfConfig) {
+        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, out);
+            document.open();
+            document.add(this.generateHeaderPdf(pdfConfig));
+
+            document.close();
+            return out;
+
+        }catch (Exception e) {
+            throw new PdfGenerateException("Can't generate PDF!");
+        }
+    }
+
+    private PdfPTable generateHeaderPdf(PdfConfig config){
+        float[] cols = {1f,1f,1f};
+        PdfPTable table = new PdfPTable(cols);
+        table.setWidthPercentage(100);
+
+        table.addCell(config.defaultCell("Замовник"));
+        table.addCell(config.defaultCell(this.getClient()));
+        table.addCell(this.getLogoImage());
+
+        table.addCell(config.defaultCell("Дата"));
+        table.addCell(config.defaultCell(this.getClient()));
+
+
+        table.addCell(config.defaultCell("Початок заходу"));
+        table.addCell(config.defaultCell(this.getDate().format(DateTimeFormatter.ofPattern("HH:mm"))));
+        table.addCell(config.defaultCell("Тривалість"));
+        table.addCell(config.defaultCell(Integer.toString(this.getDuration())));
+        table.addCell(config.defaultCell("Кі-сть запрошених"));
+        table.addCell(config.defaultCell(Integer.toString(this.getGuestsAmount())));
+        table.addCell(config.defaultCell("Формат заходу"));
+        table.addCell(config.defaultCell(this.getFormat()));
+        table.addCell(config.defaultCell("Телефон менеджера"));
+        table.addCell(config.defaultCell(this.getPhone()));
+
+
+        return table;
+    }
+
+    private PdfPCell getLogoImage(){
+        try{
+            ClassPathResource classpath = new ClassPathResource("static/asserts/img/logo.png");
+            byte[] imageBytes;
+            try (InputStream inputStream = classpath.getInputStream()) {
+                imageBytes = inputStream.readAllBytes();
+            }
+            Image image = Image.getInstance(imageBytes);
+            image.scaleToFit(150,150);
+            PdfPCell cell = new PdfPCell(image);
+            cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
+            cell.setRowspan(7);
+            return cell;
+        }catch (Exception e){
+            throw new PdfGenerateException("Can't set logo image");
+        }
     }
 }

@@ -10,16 +10,18 @@ import com.bezkoder.springjwt.payload.response.Orders.OrderCardResponse;
 import com.bezkoder.springjwt.payload.response.Orders.OrderCommonInfoResponse;
 import com.bezkoder.springjwt.payload.response.Orders.OrderResponse;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
+import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.bezkoder.springjwt.security.Exceptions.UserNotFoundException;
 import com.bezkoder.springjwt.security.services.OrdersService;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
+import jakarta.persistence.criteria.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,6 +98,22 @@ public class OrderController {
     public ResponseEntity<OrderCommonInfoResponse> add(@RequestBody OrderCommonInfoRequest info) {
         CommonOrderInfo res = this.ordersService.createCommonInfo(info);
         return ResponseEntity.ok(res.toResponse());
+    }
+
+    @GetMapping("/generate/{id}")
+    public ResponseEntity<byte[]> generate(@PathVariable Long id) {
+        ByteArrayOutputStream out = this.ordersService.generateOrderPdf(id);
+        byte[] pdfBytes = out.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("File")
+                .build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
     }
 
 
