@@ -1,6 +1,10 @@
 package com.bezkoder.springjwt.security.services;
 
+import com.bezkoder.springjwt.models.User.ERole;
+import com.bezkoder.springjwt.models.User.Role;
 import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.repository.RoleRepository;
+import com.bezkoder.springjwt.repository.RolesRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,11 +20,15 @@ import com.bezkoder.springjwt.repository.UserRepository;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
   private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final RolesRepos rolesRepos;
 
-  @Autowired
-  public UserDetailsServiceImpl(UserRepository userRepository) {
+    @Autowired
+  public UserDetailsServiceImpl(UserRepository userRepository, RoleRepository roleRepository, RolesRepos rolesRepos) {
     this.userRepository = userRepository;
-  }
+        this.roleRepository = roleRepository;
+        this.rolesRepos = rolesRepos;
+    }
 
 
   @Override
@@ -41,5 +49,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserDetailsImpl usr = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByUsername(usr.getUsername()).orElse(null);
     }
+
+    public boolean hasNoRoles() {
+      return roleRepository.findAll().isEmpty();
+    }
+
+    public void createBasicRoles() {
+        rolesRepos.save(new Role(ERole.ROLE_USER));
+        rolesRepos.save(new Role(ERole.ROLE_MODERATOR));
+        rolesRepos.save(new Role(ERole.ROLE_ADMIN));
+    }
+
+    public User GetUserById(long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
 
 }

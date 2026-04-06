@@ -9,6 +9,7 @@ import com.bezkoder.springjwt.models.User.ERole;
 import com.bezkoder.springjwt.models.User.Role;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.security.Exceptions.UserRegistrationException;
+import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,9 @@ public class AuthController {
 
   @Autowired
   RoleRepository roleRepository;
+
+  @Autowired
+  UserDetailsServiceImpl userDetailsService;
 
   @Autowired
   PasswordEncoder encoder;
@@ -84,10 +88,13 @@ public class AuthController {
       throw new UserRegistrationException("Email is already in use");
     }
 
-    // Create new user's account
     User user = new User(signUpRequest.getUsername(),
             signUpRequest.getEmail(),
             encoder.encode(signUpRequest.getPassword()));
+
+    if(userDetailsService.hasNoRoles()){
+      userDetailsService.createBasicRoles();
+    }
 
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();

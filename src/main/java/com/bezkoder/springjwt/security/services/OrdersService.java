@@ -72,17 +72,23 @@ public class OrdersService {
     }
 
     public Orders createOrder(OrderCreateRequest order) {
-        Orders newOrder = Orders.builder()
-                .client(order.getClient())
-                .date(LocalDate.parse(order.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                        .atStartOfDay())
-                .phone(order.getPhoneNumber())
-                .duration(order.getDuration())
-                .guestsAmount(order.getGuestsAmount())
-                .format(order.getFormat())
-                .user(this.userService.getCurrentUser())
+        Orders newOrder;
+        try{
+            newOrder = Orders.builder()
+                    .client(order.getClient())
+                    .date(LocalDate.parse(order.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            .atStartOfDay())
+                    .phone(order.getPhoneNumber())
+                    .duration(order.getDuration())
+                    .guestsAmount(order.getGuestsAmount())
+                    .format(order.getFormat())
+                    .user(this.userService.getCurrentUser())
 //                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList())
-                .build();
+                    .build();
+        }catch (Exception e){
+            throw new OrderCreateException("Error creating order. Not all data written");
+        }
+
         List<PositionAmount> positionAmounts = new ArrayList<>();
         for (PosAmountRequest pos: order.getPositions()){
             PositionAmount posAmount = new PositionAmount();
