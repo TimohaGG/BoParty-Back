@@ -3,10 +3,7 @@ package com.bezkoder.springjwt.controllers;
 import com.bezkoder.springjwt.models.Menu.CommonMenuInfo;
 import com.bezkoder.springjwt.models.Menu.Menu;
 import com.bezkoder.springjwt.models.User.User;
-import com.bezkoder.springjwt.payload.request.Menus.MenuCommonInfoRequest;
-import com.bezkoder.springjwt.payload.request.Menus.MenuCreateRequest;
-import com.bezkoder.springjwt.payload.request.Menus.MenuEditRequest;
-import com.bezkoder.springjwt.payload.request.Menus.ToggleStatusReq;
+import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCommonInfoResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
@@ -15,10 +12,14 @@ import com.bezkoder.springjwt.security.Exceptions.UserNotFoundException;
 import com.bezkoder.springjwt.security.services.MenuService;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.PageRanges;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
@@ -46,13 +47,29 @@ public class MenuController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping("/amount")
+    public ResponseEntity<Integer> getOrdersAmount() {
+        return ResponseEntity.ok(this.menuService.getOrdersAmount());
+    }
+
+//    @GetMapping("/get/min")
+//    public ResponseEntity<List<MenuCardResponse>> getAllMin() {
+//        User current = this.userDetailsService.getCurrentUser();
+//        if(current==null) {
+//            throw new UserNotFoundException("Can't find current user");
+//        }
+//        List<MenuCardResponse> res = this.menuService.getOrdersByUserId(current.getId()).stream().map(Menu::toCardDto).toList();
+//        return new ResponseEntity<>(res, HttpStatus.OK);
+//    }
+
     @GetMapping("/get/min")
-    public ResponseEntity<List<MenuCardResponse>> getAllMin() {
+    public ResponseEntity<List<MenuCardResponse>> getAllMin(int pageSize, int currentPage) {
         User current = this.userDetailsService.getCurrentUser();
         if(current==null) {
             throw new UserNotFoundException("Can't find current user");
         }
-        List<MenuCardResponse> res = this.menuService.getOrdersByUserId(current.getId()).stream().map(Menu::toCardDto).toList();
+        Pageable pageable = PageRequest.of(currentPage, pageSize, Sort.by(Sort.Direction.DESC,"date"));
+        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

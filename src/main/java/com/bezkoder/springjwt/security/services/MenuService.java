@@ -6,15 +6,15 @@ import com.bezkoder.springjwt.models.Menu.Menu;
 import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
-import com.bezkoder.springjwt.payload.request.Menus.MenuCommonInfoRequest;
-import com.bezkoder.springjwt.payload.request.Menus.MenuCreateRequest;
-import com.bezkoder.springjwt.payload.request.Menus.MenuEditRequest;
-import com.bezkoder.springjwt.payload.request.Menus.ToggleStatusReq;
+import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
+import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -199,6 +199,16 @@ public class MenuService {
         order.setPayed(req.isStatus());
         this.menuRepos.save(order);
     }
+
+    public List<MenuCardResponse> getOrdersInPage(Pageable pageable) {
+        List<MenuCardResponse> response = this.menuRepos.findAllForList(pageable).toList();
+        return response;
+    }
+
+    public Integer getOrdersAmount() {
+        return this.menuRepos.findTotalOrdersAmount();
+    }
+
 
 //    public List<Orders> getTempOrders(){
 //        return ordersRepos.findAllByUserIdAndTemporaryTrue(userService.getCurrentUser().getId());

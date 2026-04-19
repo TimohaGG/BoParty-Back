@@ -68,6 +68,8 @@ public class Menu {
     @ColumnDefault("0688714410")
     private String phone;
 
+    private int totalPrice;
+
 
     private boolean needsTax = false;
 
@@ -150,9 +152,9 @@ public class Menu {
 
     public static MenuCardResponse toCardDto(Menu order){
         return MenuCardResponse.builder()
-                .date(order.getDateFormatted())
+                .date(order.getDate())
                 .id(order.getId())
-                .sum(order.getTotalPrice())
+                .totalPrice(order.getTotalPrice())
                 .client(order.getClient())
                 .isPayed(order.isPayed())
                 .build();
