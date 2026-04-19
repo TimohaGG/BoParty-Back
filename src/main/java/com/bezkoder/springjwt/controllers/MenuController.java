@@ -6,6 +6,7 @@ import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.request.Menus.MenuCommonInfoRequest;
 import com.bezkoder.springjwt.payload.request.Menus.MenuCreateRequest;
 import com.bezkoder.springjwt.payload.request.Menus.MenuEditRequest;
+import com.bezkoder.springjwt.payload.request.Menus.ToggleStatusReq;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCommonInfoResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
@@ -71,6 +72,12 @@ public class MenuController {
     public ResponseEntity<MenuResponse> edit(@RequestBody MenuEditRequest order) {
         Menu res = this.menuService.editOrder(order);
         return ResponseEntity.ok(Menu.toDto(res));
+    }
+
+    @PostMapping("/edit/status")
+    public ResponseEntity<Boolean> editStatus(@RequestBody ToggleStatusReq req) {
+        this.menuService.toggleStatus(req);
+        return ResponseEntity.ok(true);
     }
 
     @DeleteMapping("/delete/{id}")

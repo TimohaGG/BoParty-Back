@@ -1,10 +1,8 @@
 package com.bezkoder.springjwt.models.Menu;
 
 public enum Status {
+    NONE("Очікує оплату","#000000"),
     PAYED("Оплачений",  "#211d00"),
-    CALCULATED("Прорахунок", "#001c23"),
-    BOOKED("Заброньовано","#373737"),
-    TEMPLATE("Шаблон", "#202020"),
     DONE("Виданий", "#0f2300");
 
     private final String title;

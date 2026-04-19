@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Deprecated
 @Entity
 @Getter
 @Setter

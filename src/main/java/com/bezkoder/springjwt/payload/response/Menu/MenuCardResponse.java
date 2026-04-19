@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.payload.response.Menu;
 
+import com.bezkoder.springjwt.models.Menu.Status;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,4 +13,5 @@ public class MenuCardResponse {
     private String date;
     private long sum;
     private String client;
+    private boolean isPayed;
 }

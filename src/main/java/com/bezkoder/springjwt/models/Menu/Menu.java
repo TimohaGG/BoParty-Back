@@ -50,7 +50,7 @@ public class Menu {
         phone = "0688714410";
         id = 0L;
         positionsAmount = new ArrayList<>();
-        status = Status.CALCULATED;
+        isPayed = false;
     }
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
@@ -95,8 +95,8 @@ public class Menu {
     @ColumnDefault("false")
     private boolean temporary;
 
-    @ColumnDefault("1")
-    private Status status;
+    @ColumnDefault("false")
+    private boolean isPayed;
 
 
     public String getDateFormatted() {
@@ -154,6 +154,7 @@ public class Menu {
                 .id(order.getId())
                 .sum(order.getTotalPrice())
                 .client(order.getClient())
+                .isPayed(order.isPayed())
                 .build();
     }
 
@@ -168,6 +169,7 @@ public class Menu {
                 .format(order.getFormat())
                 .phone(order.getPhone())
                 .totalPrice(order.getTotalPrice())
+                .isPayed(order.isPayed())
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
                 .additionalInfo(order.getAdditionalInfo().stream().map(MenuAdditionalInfo::toResponse).toList())
                 .build();

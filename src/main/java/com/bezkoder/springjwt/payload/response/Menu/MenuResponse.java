@@ -19,6 +19,7 @@ public class MenuResponse {
     private int duration;
     private String format;
     private String phone;
+    private boolean isPayed;
 
     private double totalPrice;
 

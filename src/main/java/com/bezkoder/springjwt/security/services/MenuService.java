@@ -9,6 +9,7 @@ import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.payload.request.Menus.MenuCommonInfoRequest;
 import com.bezkoder.springjwt.payload.request.Menus.MenuCreateRequest;
 import com.bezkoder.springjwt.payload.request.Menus.MenuEditRequest;
+import com.bezkoder.springjwt.payload.request.Menus.ToggleStatusReq;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
@@ -191,6 +192,12 @@ public class MenuService {
         Menu order = this.getOrderById(id);
         return order.toPdf(pdfConfig);
 
+    }
+
+    public void toggleStatus(ToggleStatusReq req) {
+        Menu order = this.getOrderById(req.getId());
+        order.setPayed(req.isStatus());
+        this.menuRepos.save(order);
     }
 
 //    public List<Orders> getTempOrders(){
