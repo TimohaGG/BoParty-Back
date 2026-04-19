@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.itextpdf.text.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PdfGenerator {
-    private final Orders order;
+    private final Menu order;
     Document document;
     Font mainFont;
     Font boldFont;
@@ -35,7 +35,7 @@ public class PdfGenerator {
     String summaryHeader = "Загалом";
     Map<String, Tuple<String,byte[]>> summary = new LinkedHashMap<>();
 
-    public PdfGenerator(Orders order, OrderInfo info) {
+    public PdfGenerator(Menu order, MenuInfo info) {
         this.order = order;
 
         DateTimeFormatter date = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -65,7 +65,7 @@ public class PdfGenerator {
         if(info.isNeedsForOne())
             summary.put("На 1 особу, грн", new Tuple<>((int) order.getPrice() / order.getGuestsAmount() + " грн",null));
 
-        for (OrderAdditionalInfo infoT : order.getAdditionalInfo()) {
+        for (MenuAdditionalInfo infoT : order.getAdditionalInfo()) {
 //            summary.put(infoT.getTitle(),new Tuple<>( infoT.getDescription () + "\n" + ((int)infoT.getPrice()==0 ? "" : infoT.getPrice() + " грн"),infoT.getImage()));
         }
 

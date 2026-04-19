@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.models.Menu.Menu;
 import com.bezkoder.springjwt.models.Position.Category;
 import com.bezkoder.springjwt.models.Position.Ingredient;
 import jakarta.persistence.*;
@@ -61,7 +61,7 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Ingredient> ingredients;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Orders> orders;
+    private List<Menu> orders;
 
 
     public User() {

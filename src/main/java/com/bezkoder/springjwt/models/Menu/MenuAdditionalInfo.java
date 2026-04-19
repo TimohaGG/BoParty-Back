@@ -1,14 +1,9 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
-import com.bezkoder.springjwt.payload.request.Orders.OrderCommonInfoRequest;
-import com.bezkoder.springjwt.payload.request.Orders.OrderInfoRequest;
-import com.bezkoder.springjwt.payload.response.Orders.OrderInfoResponse;
-import jakarta.annotation.Nullable;
+import com.bezkoder.springjwt.payload.request.Menus.MenuInfoRequest;
+import com.bezkoder.springjwt.payload.response.Menu.MenuInfoResponse;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.util.Base64;
 
 @Entity
 @Getter
@@ -16,14 +11,14 @@ import java.util.Base64;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderAdditionalInfo
+public class MenuAdditionalInfo
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Orders order;
+    private Menu order;
 
     private String title;
     private String description;
@@ -37,8 +32,8 @@ public class OrderAdditionalInfo
     }
 
 
-    public OrderInfoResponse toResponse() {
-        return OrderInfoResponse.builder()
+    public MenuInfoResponse toResponse() {
+        return MenuInfoResponse.builder()
                 .id(id)
                 .title(title)
                 .description(description)
@@ -46,8 +41,8 @@ public class OrderAdditionalInfo
                 .build();
     }
 
-    public static OrderAdditionalInfo parse(OrderInfoRequest data){
-        return OrderAdditionalInfo.builder()
+    public static MenuAdditionalInfo parse(MenuInfoRequest data){
+        return MenuAdditionalInfo.builder()
                 .title(data.getTitle())
                 .description(data.getDescription())
                 .price(data.getPrice())

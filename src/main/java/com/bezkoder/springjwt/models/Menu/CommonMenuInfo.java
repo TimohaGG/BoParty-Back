@@ -1,10 +1,8 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
-import com.bezkoder.springjwt.payload.response.Orders.OrderCommonInfoResponse;
-import jakarta.annotation.Nullable;
+import com.bezkoder.springjwt.payload.response.Menu.MenuCommonInfoResponse;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -12,7 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommonOrderInfo {
+public class CommonMenuInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,8 +18,8 @@ public class CommonOrderInfo {
     private String description;
     private int price;
 
-    public OrderCommonInfoResponse toResponse(){
-        return OrderCommonInfoResponse.builder()
+    public MenuCommonInfoResponse toResponse(){
+        return MenuCommonInfoResponse.builder()
                 .id(id)
                 .title(title)
                 .description(description)

@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 
 import com.bezkoder.springjwt.models.Position.Units;

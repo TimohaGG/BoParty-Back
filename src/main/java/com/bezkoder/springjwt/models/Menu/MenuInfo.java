@@ -1,11 +1,11 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderInfo {
+public class MenuInfo {
     private  boolean tax = false;
     private  boolean needsForOne = false;
     private  String color = "";

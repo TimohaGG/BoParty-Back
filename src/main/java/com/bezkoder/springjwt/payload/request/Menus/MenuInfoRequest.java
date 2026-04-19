@@ -1,4 +1,5 @@
-package com.bezkoder.springjwt.payload.request.Orders;
+package com.bezkoder.springjwt.payload.request.Menus;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCommonInfoRequest {
+public class MenuInfoRequest {
     private String title;
     private String description;
     private int price;

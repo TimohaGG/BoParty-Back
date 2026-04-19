@@ -1,54 +1,42 @@
 package com.bezkoder.springjwt.security.services;
 
-import com.bezkoder.springjwt.models.Order.CommonOrderInfo;
-import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
-import com.bezkoder.springjwt.models.Order.OrderInfo;
-import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.models.Menu.CommonMenuInfo;
+import com.bezkoder.springjwt.models.Menu.MenuAdditionalInfo;
+import com.bezkoder.springjwt.models.Menu.Menu;
 import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
-import com.bezkoder.springjwt.models.User.User;
-import com.bezkoder.springjwt.payload.request.Orders.OrderCommonInfoRequest;
-import com.bezkoder.springjwt.payload.request.Orders.OrderCreateRequest;
-import com.bezkoder.springjwt.payload.request.Orders.OrderEditRequest;
-import com.bezkoder.springjwt.payload.request.Orders.OrderInfoRequest;
+import com.bezkoder.springjwt.payload.request.Menus.MenuCommonInfoRequest;
+import com.bezkoder.springjwt.payload.request.Menus.MenuCreateRequest;
+import com.bezkoder.springjwt.payload.request.Menus.MenuEditRequest;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
-import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
-import com.itextpdf.text.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OrdersService {
-    private final OrdersRepos ordersRepos;
+public class MenuService {
+    private final MenuRepos menuRepos;
     private final IAdditionalInfoRepos iAdditionalInfoRepos;
     private final PositionAmountRepos positionAmountRepos;
     private final PositionsRepos positionsRepos;
-    private UserDetailsServiceImpl userService;
+    private final UserDetailsServiceImpl userService;
     private final ICommonInfoRepos commonInfoRepos;
     private final PdfConfig pdfConfig;
 
 
     @Autowired
-    public OrdersService(OrdersRepos ordersRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig) {
-        this.ordersRepos = ordersRepos;
+    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig) {
+        this.menuRepos = menuRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
         this.positionAmountRepos = positionAmountRepos;
@@ -58,8 +46,8 @@ public class OrdersService {
         this.pdfConfig = pdfConfig;
     }
 
-    public List<Orders> getOrdersByUserId(Long userId) {
-        List<Orders> res = ordersRepos
+    public List<Menu> getOrdersByUserId(Long userId) {
+        List<Menu> res = menuRepos
                 .findAllByUserIdAndTemporaryFalse(userId)
                 .stream()
                 .sorted((order1, order2) -> order2.getDate().compareTo(order1.getDate()))
@@ -71,10 +59,10 @@ public class OrdersService {
         return res;
     }
 
-    public Orders createOrder(OrderCreateRequest order) {
-        Orders newOrder;
+    public Menu createOrder(MenuCreateRequest order) {
+        Menu newOrder;
         try{
-            newOrder = Orders.builder()
+            newOrder = Menu.builder()
                     .client(order.getClient())
                     .date(LocalDate.parse(order.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                             .atStartOfDay())
@@ -98,30 +86,30 @@ public class OrdersService {
             positionAmounts.add(posAmount);
         }
         try{
-            Orders tmp =  ordersRepos.save(newOrder);
+            Menu tmp =  menuRepos.save(newOrder);
             positionAmounts.forEach(el -> el.setOrder(tmp));
             tmp.setPositionsAmount(positionAmounts);
-            List<OrderAdditionalInfo> info = order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).collect(Collectors.toList());
+            List<MenuAdditionalInfo> info = order.getAdditionalInfo().stream().map(MenuAdditionalInfo::parse).collect(Collectors.toList());
             info.forEach(el->el.setOrder(tmp));
             tmp.setAdditionalInfo(info);
 
-            return ordersRepos.save(tmp);
+            return menuRepos.save(tmp);
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
         }
 
     }
 
-    private void saveInfo(List<OrderAdditionalInfo> data){
+    private void saveInfo(List<MenuAdditionalInfo> data){
         this.iAdditionalInfoRepos.saveAll(data);
     }
 
-    public Orders getOrderById(long id) {
-        return this.ordersRepos.findById(id).orElseThrow(()-> new NoContentException("Order Not Found"));
+    public Menu getOrderById(long id) {
+        return this.menuRepos.findById(id).orElseThrow(()-> new NoContentException("Order Not Found"));
     }
 
-    public Orders editOrder(OrderEditRequest request) {
-        Orders order = this.getOrderById(request.getId());
+    public Menu editOrder(MenuEditRequest request) {
+        Menu order = this.getOrderById(request.getId());
 
         order.setDate(LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atStartOfDay()); // adjust parsing if datetime
@@ -158,14 +146,14 @@ public class OrdersService {
             order.addPosition(posReq);
         }
 
-        for(OrderAdditionalInfo info : order.getAdditionalInfo()){
+        for(MenuAdditionalInfo info : order.getAdditionalInfo()){
             order.removeInfo(info);
         }
-        List<OrderAdditionalInfo> additionalInfo = request.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList();
+        List<MenuAdditionalInfo> additionalInfo = request.getAdditionalInfo().stream().map(MenuAdditionalInfo::parse).toList();
         additionalInfo.forEach(el->{el.setOrder(order);order.addInfo(el);});
 
         try{
-            return this.ordersRepos.save(order);
+            return this.menuRepos.save(order);
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
         }
@@ -173,8 +161,8 @@ public class OrdersService {
 
     }
 
-    public CommonOrderInfo createCommonInfo(OrderCommonInfoRequest info) {
-        CommonOrderInfo res = CommonOrderInfo.builder()
+    public CommonMenuInfo createCommonInfo(MenuCommonInfoRequest info) {
+        CommonMenuInfo res = CommonMenuInfo.builder()
                 .title(info.getTitle())
                 .description(info.getDescription())
                 .price(info.getPrice())
@@ -190,17 +178,17 @@ public class OrdersService {
 
     }
 
-    public List<CommonOrderInfo> getAllCommonInfo() {
+    public List<CommonMenuInfo> getAllCommonInfo() {
         return this.commonInfoRepos.findAll();
     }
 
     public long deleteById(Long id) {
-        this.ordersRepos.deleteById(id);
+        this.menuRepos.deleteById(id);
         return id;
     }
 
     public ByteArrayOutputStream generateOrderPdf(Long id) {
-        Orders order = this.getOrderById(id);
+        Menu order = this.getOrderById(id);
         return order.toPdf(pdfConfig);
 
     }

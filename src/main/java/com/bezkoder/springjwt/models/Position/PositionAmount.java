@@ -1,13 +1,12 @@
 package com.bezkoder.springjwt.models.Position;
 
-import com.bezkoder.springjwt.models.Order.Orders;
+import com.bezkoder.springjwt.models.Menu.Menu;
 import com.bezkoder.springjwt.payload.response.Positions.PositionAmountResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @AllArgsConstructor
@@ -23,13 +22,13 @@ public class PositionAmount {
     private Position position;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Orders order;
+    private Menu order;
     private int amount;
 
     @Column(nullable = true)
     private String title;
 
-    public static PositionAmount copyPositionAmount(PositionAmount old, Orders order){
+    public static PositionAmount copyPositionAmount(PositionAmount old, Menu order){
         PositionAmount positionAmount = new PositionAmount();
         positionAmount.position = old.position;
         positionAmount.order = order;
@@ -42,7 +41,7 @@ public class PositionAmount {
 
     }
 
-    public PositionAmount(Position position, Orders order, int amount) {
+    public PositionAmount(Position position, Menu order, int amount) {
         this.position = position;
         this.order = order;
         this.amount = amount;

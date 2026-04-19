@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 import jakarta.persistence.*;
 
@@ -13,7 +13,7 @@ public class ShoppingList {
     private int id;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 
-    private Orders order;
+    private Menu order;
 
     public ShoppingList() {
     }
@@ -31,11 +31,11 @@ public class ShoppingList {
         this.needsUpdate = needsUpdate;
     }
 
-    public Orders getOrder() {
+    public Menu getOrder() {
         return order;
     }
 
-    public void setOrder(Orders order) {
+    public void setOrder(Menu order) {
         this.order = order;
     }
 

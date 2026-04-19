@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 public enum Status {
     PAYED("Оплачений",  "#211d00"),

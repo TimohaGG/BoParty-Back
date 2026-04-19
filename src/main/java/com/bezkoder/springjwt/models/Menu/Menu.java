@@ -1,13 +1,12 @@
-package com.bezkoder.springjwt.models.Order;
+package com.bezkoder.springjwt.models.Menu;
 
 import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
-import com.bezkoder.springjwt.payload.response.Orders.OrderCardResponse;
-import com.bezkoder.springjwt.payload.response.Orders.OrderResponse;
+import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
+import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
 import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -22,10 +21,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.awt.*;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,13 +35,13 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class Orders {
+public class Menu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Orders(){
+    public Menu(){
         date = LocalDate.now().atStartOfDay();
         client = "";
         guestsAmount = 0;
@@ -77,7 +73,7 @@ public class Orders {
 
     private double taxPercentage = 0.06D;
     public double getTaxPercentageCalc() {
-        double totalPrice = getPrice() + getAdditionalInfo().stream().mapToInt(OrderAdditionalInfo::getPrice).sum();
+        double totalPrice = getPrice() + getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
         return Math.floor(totalPrice - totalPrice * (1-taxPercentage)) ;
     }
 
@@ -87,7 +83,7 @@ public class Orders {
 
     @JsonIgnore
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
-    private List<OrderAdditionalInfo> additionalInfo = new  ArrayList<>();
+    private List<MenuAdditionalInfo> additionalInfo = new  ArrayList<>();
 
 
     @Getter
@@ -122,7 +118,7 @@ public class Orders {
     }
 
     public int getTotalPrice(){
-        int sum = getPrice() + getAdditionalInfo().stream().mapToInt(OrderAdditionalInfo::getPrice).sum();
+        int sum = getPrice() + getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
         if(needsTax){
             sum += getTaxPercentageCalc();
         }
@@ -152,8 +148,8 @@ public class Orders {
         positionAmount.setOrder(null);
     }
 
-    public static OrderCardResponse toCardDto(Orders order){
-        return OrderCardResponse.builder()
+    public static MenuCardResponse toCardDto(Menu order){
+        return MenuCardResponse.builder()
                 .date(order.getDateFormatted())
                 .id(order.getId())
                 .sum(order.getTotalPrice())
@@ -161,9 +157,9 @@ public class Orders {
                 .build();
     }
 
-    public static OrderResponse toDto(Orders order){
+    public static MenuResponse toDto(Menu order){
         System.out.println(order.getTotalPrice());
-        return OrderResponse.builder()
+        return MenuResponse.builder()
                 .id(order.getId())
                 .date(order.getDate())
                 .client(order.getClient())
@@ -173,16 +169,16 @@ public class Orders {
                 .phone(order.getPhone())
                 .totalPrice(order.getTotalPrice())
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
-                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::toResponse).toList())
+                .additionalInfo(order.getAdditionalInfo().stream().map(MenuAdditionalInfo::toResponse).toList())
                 .build();
     }
 
-    public void removeInfo(OrderAdditionalInfo info) {
+    public void removeInfo(MenuAdditionalInfo info) {
         this.additionalInfo.remove(info);
         info.setOrder(null);
     }
 
-    public void addInfo(OrderAdditionalInfo el) {
+    public void addInfo(MenuAdditionalInfo el) {
         this.additionalInfo.add(el);
     }
 

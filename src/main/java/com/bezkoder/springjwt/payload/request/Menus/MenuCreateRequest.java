@@ -1,6 +1,5 @@
-package com.bezkoder.springjwt.payload.request.Orders;
+package com.bezkoder.springjwt.payload.request.Menus;
 
-import com.bezkoder.springjwt.models.Order.OrderAdditionalInfo;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderEditRequest {
-    private long id;
+public class MenuCreateRequest {
     private String date;
     private String client;
     private int guestsAmount;
@@ -22,6 +20,5 @@ public class OrderEditRequest {
     private String format;
     private String phoneNumber;
     private List<PosAmountRequest> positions;
-    private List<OrderInfoRequest> additionalInfo;
-
+    private List<MenuInfoRequest> additionalInfo;
 }
