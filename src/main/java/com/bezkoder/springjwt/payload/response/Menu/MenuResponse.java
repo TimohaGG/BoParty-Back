@@ -21,7 +21,7 @@ public class MenuResponse {
     private String phone;
     private boolean isPayed;
 
-    private double totalPrice;
+    private int totalPrice;
 
     private List<PositionAmountResponse> positions;
 

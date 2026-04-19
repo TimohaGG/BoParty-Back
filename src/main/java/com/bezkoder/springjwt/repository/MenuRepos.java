@@ -6,7 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface MenuRepos extends JpaRepository<Menu, Long> {
@@ -18,8 +21,11 @@ public interface MenuRepos extends JpaRepository<Menu, Long> {
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
-o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o""")
-    Page<MenuCardResponse> findAllForList(Pageable pageable);
+o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date >=:startDate""")
+    Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate, Pageable pageable);
+
+    Page<Menu> findAllByDateAfter(LocalDateTime date, Pageable pageable);
+    Page<Menu> findAllByDateStartingWith(LocalDateTime date, Pageable pageable);
 
     @Query("""
 select COUNT(o) from Menu o""")

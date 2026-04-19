@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,8 @@ public class MenuService {
             info.forEach(el->el.setOrder(tmp));
             tmp.setAdditionalInfo(info);
 
+            tmp.setTotalPrice(tmp.getTotalPrice());
+
             return menuRepos.save(tmp);
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
@@ -154,6 +157,7 @@ public class MenuService {
         additionalInfo.forEach(el->{el.setOrder(order);order.addInfo(el);});
 
         try{
+            order.setTotalPrice(order.getTotalPrice());
             return this.menuRepos.save(order);
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
@@ -201,8 +205,10 @@ public class MenuService {
     }
 
     public List<MenuCardResponse> getOrdersInPage(Pageable pageable) {
-        List<MenuCardResponse> response = this.menuRepos.findAllForList(pageable).toList();
-        return response;
+        return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(), pageable).toList();
+//        List<Menu> res = this.menuRepos.findAllByDateStartingWith(LocalDateTime.now(), pageable).toList();
+//
+//        return res.stream().map(Menu::toCardDto).toList();
     }
 
     public Integer getOrdersAmount() {
