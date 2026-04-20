@@ -67,9 +67,9 @@ public class Menu {
     private String format;
     @ColumnDefault("0688714410")
     private String phone;
-
     private int totalPrice;
 
+    private int sortingOrder = 0;
 
     private boolean needsTax = false;
 

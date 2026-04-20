@@ -48,8 +48,8 @@ public class MenuController {
     }
 
     @GetMapping("/amount")
-    public ResponseEntity<Integer> getOrdersAmount() {
-        return ResponseEntity.ok(this.menuService.getOrdersAmount());
+    public ResponseEntity<Integer> getOrdersAmount(boolean archive) {
+        return ResponseEntity.ok(this.menuService.getOrdersAmount(archive));
     }
 
 //    @GetMapping("/get/min")
@@ -63,13 +63,13 @@ public class MenuController {
 //    }
 
     @GetMapping("/get/min")
-    public ResponseEntity<List<MenuCardResponse>> getAllMin(int pageSize, int currentPage) {
+    public ResponseEntity<List<MenuCardResponse>> getAllMin(int pageSize, int currentPage, boolean archive) {
         User current = this.userDetailsService.getCurrentUser();
         if(current==null) {
             throw new UserNotFoundException("Can't find current user");
         }
         Pageable pageable = PageRequest.of(currentPage, pageSize, Sort.by(Sort.Direction.DESC,"date"));
-        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable);
+        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable, archive);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

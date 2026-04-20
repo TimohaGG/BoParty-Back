@@ -24,10 +24,25 @@ select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
 o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date >=:startDate""")
     Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate, Pageable pageable);
 
+
+    @Query(
+            """
+select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
+o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date <:startDate""")
+    Page<MenuCardResponse> findAllForListArchive(@Param("startDate")LocalDateTime startDate, Pageable pageable);
+
     Page<Menu> findAllByDateAfter(LocalDateTime date, Pageable pageable);
     Page<Menu> findAllByDateStartingWith(LocalDateTime date, Pageable pageable);
 
     @Query("""
 select COUNT(o) from Menu o""")
     Integer findTotalOrdersAmount();
+    @Query("""
+select COUNT(o) from Menu o where o.date >=:startDate""")
+    Integer findTotalFutureOrders(@Param("startDate")LocalDateTime startDate);
+
+
+    @Query("""
+select COUNT(o) from Menu o where o.date <:startDate""")
+    Integer findTotalArchiveOrders(@Param("startDate")LocalDateTime startDate);
 }

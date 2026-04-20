@@ -204,15 +204,18 @@ public class MenuService {
         this.menuRepos.save(order);
     }
 
-    public List<MenuCardResponse> getOrdersInPage(Pageable pageable) {
-        return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(), pageable).toList();
-//        List<Menu> res = this.menuRepos.findAllByDateStartingWith(LocalDateTime.now(), pageable).toList();
-//
-//        return res.stream().map(Menu::toCardDto).toList();
+    public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive) {
+        if(archive)
+            return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(), pageable).toList();
+        else
+            return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(), pageable).toList();
     }
 
-    public Integer getOrdersAmount() {
-        return this.menuRepos.findTotalOrdersAmount();
+    public Integer getOrdersAmount(boolean archive) {
+        if(archive)
+            return this.menuRepos.findTotalArchiveOrders(LocalDate.now().atStartOfDay());
+        else
+            return this.menuRepos.findTotalFutureOrders(LocalDate.now().atStartOfDay());
     }
 
 
