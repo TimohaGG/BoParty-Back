@@ -85,6 +85,7 @@ public class MenuService {
             posAmount.setPosition(this.positionsRepos.findById(pos.getPosId()).orElseThrow(()-> new NoContentException("Position Not Found")));
             posAmount.setAmount(pos.getAmount());
             posAmount.setTitle(pos.getTitle());
+            posAmount.setInMenuOrder(pos.getInMenuOrder());
             positionAmounts.add(posAmount);
         }
         try{
@@ -133,6 +134,7 @@ public class MenuService {
             PositionAmount posAmount = new PositionAmount();
             posAmount.setOrder(order);
             posAmount.setAmount(posReq.getAmount());
+            posAmount.setInMenuOrder(posReq.getInMenuOrder());
 
             if (posReq.getPosId() > 0) {
                 Position position = positionsRepos.findById(posReq.getPosId())
@@ -150,9 +152,11 @@ public class MenuService {
             order.addPosition(posReq);
         }
 
-        for(MenuAdditionalInfo info : order.getAdditionalInfo()){
-            order.removeInfo(info);
-        }
+        order.getAdditionalInfo().stream().forEach(el->el.setOrder(null));
+
+//        for(MenuAdditionalInfo info : order.getAdditionalInfo()){
+//            order.removeInfo(info);
+//        }
         List<MenuAdditionalInfo> additionalInfo = request.getAdditionalInfo().stream().map(MenuAdditionalInfo::parse).toList();
         additionalInfo.forEach(el->{el.setOrder(order);order.addInfo(el);});
 

@@ -7,7 +7,9 @@ import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
 import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -22,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -192,6 +195,7 @@ public class Menu {
             PdfWriter.getInstance(document, out);
             document.open();
             document.add(this.generateHeaderPdf(pdfConfig));
+            document.add(this.generatePositionsPdf(pdfConfig));
 
             document.close();
             return out;
@@ -199,6 +203,44 @@ public class Menu {
         }catch (Exception e) {
             throw new PdfGenerateException("Can't generate PDF!");
         }
+    }
+
+
+
+    private Element generatePositionsPdf(PdfConfig pdfConfig) {
+        float[] cols = {2f, 2f,1f,1f,1f};
+        PdfPTable table = new PdfPTable(cols);
+        table.setWidthPercentage(100);
+        table.addCell(this.generatePositionsHeader(pdfConfig));
+
+        this.positionsAmount.forEach(pos -> {
+            table.addCell(pdfConfig.defaultCell(pos.getPosName()));
+            if(pos.getPosition().getImage() != null){
+                try {
+                    Image img = Image.getInstance(pos.getPosition().getImage());
+                    img.scaleToFit(50,50);
+                    table.addCell(pdfConfig.getImageCell(img));
+                } catch (BadElementException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                table.addCell(" ");
+            }
+
+            table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getWeight())));
+            table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
+            table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getPrice())));
+
+        });
+        return table;
+    }
+
+    private PdfPCell generatePositionsHeader(PdfConfig config) {
+        PdfPCell cell = config.defaultCellBold("Позиції", config.accentTextColor);
+        cell.setBackgroundColor(config.accentColor);
+        cell.setColspan(5);
+        return cell;
     }
 
     private PdfPTable generateHeaderPdf(PdfConfig config){

@@ -28,6 +28,8 @@ public class PositionAmount {
     @Column(nullable = true)
     private String title;
 
+    private int inMenuOrder = 0;
+
     public static PositionAmount copyPositionAmount(PositionAmount old, Menu order){
         PositionAmount positionAmount = new PositionAmount();
         positionAmount.position = old.position;

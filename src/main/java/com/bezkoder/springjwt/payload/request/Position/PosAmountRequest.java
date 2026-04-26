@@ -13,4 +13,5 @@ public class PosAmountRequest {
     private long posId;
     private int amount;
     private String title;
+    private int inMenuOrder;
 }
