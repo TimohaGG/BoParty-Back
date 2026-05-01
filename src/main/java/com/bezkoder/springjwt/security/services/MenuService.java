@@ -12,17 +12,20 @@ import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
+import com.bezkoder.springjwt.security.Exceptions.OrderEditException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,6 +116,7 @@ public class MenuService {
         return this.menuRepos.findById(id).orElseThrow(()-> new NoContentException("Order Not Found"));
     }
 
+    @Transactional
     public Menu editOrder(MenuEditRequest request) {
         Menu order = this.getOrderById(request.getId());
 
@@ -124,41 +128,8 @@ public class MenuService {
         order.setFormat(request.getFormat());
         order.setPhone(request.getPhoneNumber());
 
-
-        for (PositionAmount pos: order.getPositionsAmount()){
-            order.removePosition(pos);
-        }
-
-        List<PositionAmount> positionAmounts = new ArrayList<>();
-        for (PosAmountRequest posReq : request.getPositions()) {
-            PositionAmount posAmount = new PositionAmount();
-            posAmount.setOrder(order);
-            posAmount.setAmount(posReq.getAmount());
-            posAmount.setInMenuOrder(posReq.getInMenuOrder());
-
-            if (posReq.getPosId() > 0) {
-                Position position = positionsRepos.findById(posReq.getPosId())
-                        .orElseThrow(() -> new RuntimeException("Position not found with id " + posReq.getPosId()));
-                posAmount.setPosition(position);
-            }
-
-            if (posReq.getTitle() != null && !posReq.getTitle().isBlank()) {
-                posAmount.setTitle(posReq.getTitle());
-            }
-
-            positionAmounts.add(posAmount);
-        }
-        for (PositionAmount posReq : positionAmounts) {
-            order.addPosition(posReq);
-        }
-
-        order.getAdditionalInfo().stream().forEach(el->el.setOrder(null));
-
-//        for(MenuAdditionalInfo info : order.getAdditionalInfo()){
-//            order.removeInfo(info);
-//        }
-        List<MenuAdditionalInfo> additionalInfo = request.getAdditionalInfo().stream().map(MenuAdditionalInfo::parse).toList();
-        additionalInfo.forEach(el->{el.setOrder(order);order.addInfo(el);});
+        replacePositions(order, request.getPositions());
+        replaceAdditionalInfo(order, request.getAdditionalInfo());
 
         try{
             order.setTotalPrice(order.getTotalPrice());
@@ -166,8 +137,62 @@ public class MenuService {
         }catch (Exception e){
             throw new OrderCreateException(e.getMessage());
         }
+    }
 
+    private void replacePositions(Menu order, List<PosAmountRequest> requestedPositions) {
+        new ArrayList<>(order.getPositionsAmount()).forEach(order::removePosition);
 
+        List<PosAmountRequest> positions = requestedPositions == null ? List.of() : requestedPositions;
+        Map<Long, Position> positionsById = loadPositionsById(positions);
+
+        for (PosAmountRequest posReq : positions) {
+            PositionAmount posAmount = new PositionAmount();
+            posAmount.setOrder(order);
+            posAmount.setAmount(posReq.getAmount());
+            posAmount.setInMenuOrder(posReq.getInMenuOrder());
+
+            if (posReq.getPosId() > 0) {
+                posAmount.setPosition(positionsById.get(posReq.getPosId()));
+            }
+
+            if (posReq.getTitle() != null && !posReq.getTitle().isBlank()) {
+                posAmount.setTitle(posReq.getTitle());
+            }
+
+            order.addPosition(posAmount);
+        }
+    }
+
+    private Map<Long, Position> loadPositionsById(List<PosAmountRequest> positions) {
+        Set<Long> positionIds = positions.stream()
+                .map(PosAmountRequest::getPosId)
+                .filter(id -> id > 0)
+                .collect(Collectors.toSet());
+
+        Map<Long, Position> positionsById = positionsRepos.findAllById(positionIds)
+                .stream()
+                .collect(Collectors.toMap(Position::getId, Function.identity()));
+
+        if (positionsById.size() != positionIds.size()) {
+            positionIds.removeAll(positionsById.keySet());
+            throw new NoContentException("Position not found with id " + positionIds.iterator().next());
+        }
+
+        return positionsById;
+    }
+
+    private void replaceAdditionalInfo(Menu order, List<MenuInfoRequest> requestedInfo) {
+        List<MenuAdditionalInfo> oldInfo = iAdditionalInfoRepos.findAllByOrderId(order.getId());
+        oldInfo.forEach(order::removeInfo);
+        iAdditionalInfoRepos.deleteAll(oldInfo);
+
+        List<MenuInfoRequest> info = requestedInfo == null ? List.of() : requestedInfo;
+        info.stream()
+                .map(MenuAdditionalInfo::parse)
+                .forEach(el -> {
+                    el.setOrder(order);
+                    order.addInfo(el);
+                });
     }
 
     public CommonMenuInfo createCommonInfo(MenuCommonInfoRequest info) {
@@ -220,6 +245,23 @@ public class MenuService {
             return this.menuRepos.findTotalArchiveOrders(LocalDate.now().atStartOfDay());
         else
             return this.menuRepos.findTotalFutureOrders(LocalDate.now().atStartOfDay());
+    }
+
+    @Transactional
+    public void deleteInfoById(long id) {
+        try{
+            MenuAdditionalInfo info = this.iAdditionalInfoRepos.findById(id)
+                    .orElseThrow(() -> new NoContentException("Menu info not found"));
+
+            if (info.getOrder() != null) {
+                info.getOrder().removeInfo(info);
+            }
+
+            this.iAdditionalInfoRepos.delete(info);
+        }
+        catch (Exception e){
+            throw new OrderEditException("Can't delete menu info!");
+        }
     }
 
 

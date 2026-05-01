@@ -103,6 +103,11 @@ public class MenuController {
         return ResponseEntity.ok(deletedId);
     }
 
+    @PostMapping({"/info/delete", "/info/delete/"})
+    public ResponseEntity<Long> deleteInfo(@RequestBody MenuInfoRemoveReq req) {
+        this.menuService.deleteInfoById(req.getId());
+        return ResponseEntity.ok(req.getId());
+    }
 
     @GetMapping("/info/common")
     public ResponseEntity<List<CommonMenuInfo>> getCommonInfo(){
