@@ -1,35 +1,46 @@
 package com.bezkoder.springjwt.models.Menu;
 
+import com.bezkoder.springjwt.models.Position.Ingredient;
 import com.bezkoder.springjwt.models.Position.IngredientAmount;
+import com.bezkoder.springjwt.models.Position.Units;
+import com.bezkoder.springjwt.payload.response.Menu.ShoppingListItemResp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-public class ShoppingListItem {
+@Getter
+@Setter
+public class    ShoppingListItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private IngredientAmount ingredient;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Ingredient ingredient;
+
+    private double amount;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Units unit;
 
     @ColumnDefault("false")
     private boolean isBought;
 
-    public Long getId() {
-        return id;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ShoppingList shoppingList;
 
     @Column(nullable = true)
     private String comment;
 
-
-    public ShoppingListItem(IngredientAmount ingredient, ShoppingList shoppingList) {
+    public ShoppingListItem(Ingredient ingredient, ShoppingList shoppingList, double amount, Units unit) {
         this.ingredient = ingredient;
         this.shoppingList = shoppingList;
+        this.amount = amount;
+        this.unit = unit;
     }
 
     public ShoppingListItem() {
@@ -37,14 +48,7 @@ public class ShoppingListItem {
     }
 
     public long getInsideIngredientId(){
-        return ingredient.getIngredient().getId();
-    }
-    public IngredientAmount getIngredient() {
-        return ingredient;
-    }
-
-    public void setIngredient(IngredientAmount ingredient) {
-        this.ingredient = ingredient;
+        return ingredient.getId();
     }
 
     public boolean isBought() {
@@ -55,19 +59,15 @@ public class ShoppingListItem {
         isBought = bought;
     }
 
-    public ShoppingList getShoppingList() {
-        return shoppingList;
+    public static ShoppingListItemResp  toRespDto(ShoppingListItem item){
+        return ShoppingListItemResp.builder()
+                .id(item.getId())
+                .comment(item.getComment())
+                .amount(item.getAmount())
+                .isBought(item.isBought())
+                .ingredient(item.ingredient.toIngredientDto())
+                .unitName(item.getUnit().getUnitName())
+                .build();
     }
 
-    public void setShoppingList(ShoppingList shoppingList) {
-        this.shoppingList = shoppingList;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

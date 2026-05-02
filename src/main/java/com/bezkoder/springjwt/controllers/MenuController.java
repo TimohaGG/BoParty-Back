@@ -2,11 +2,14 @@ package com.bezkoder.springjwt.controllers;
 
 import com.bezkoder.springjwt.models.Menu.CommonMenuInfo;
 import com.bezkoder.springjwt.models.Menu.Menu;
+import com.bezkoder.springjwt.models.Menu.ShoppingList;
+import com.bezkoder.springjwt.models.Menu.ShoppingListItem;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCommonInfoResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
+import com.bezkoder.springjwt.payload.response.Menu.ShoppingListResp;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.UserNotFoundException;
 import com.bezkoder.springjwt.security.services.MenuService;
@@ -69,7 +72,7 @@ public class MenuController {
             throw new UserNotFoundException("Can't find current user");
         }
         Pageable pageable = PageRequest.of(currentPage, pageSize, Sort.by(Sort.Direction.DESC,"date"));
-        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable, archive);
+        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable, archive, current.getId());
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -122,6 +125,12 @@ public class MenuController {
     public ResponseEntity<MenuCommonInfoResponse> add(@RequestBody MenuCommonInfoRequest info) {
         CommonMenuInfo res = this.menuService.createCommonInfo(info);
         return ResponseEntity.ok(res.toResponse());
+    }
+
+    @GetMapping("/shopping/get/{orderId}")
+    public ResponseEntity<ShoppingListResp> getShoppingList(@PathVariable long orderId){
+        ShoppingList list = this.menuService.getShopping(orderId);
+        return ResponseEntity.ok(ShoppingList.toRespDto(list));
     }
 
     @GetMapping("/generate/{id}")

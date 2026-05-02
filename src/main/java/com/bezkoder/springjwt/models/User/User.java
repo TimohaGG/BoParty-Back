@@ -12,6 +12,7 @@ import jakarta.persistence.*;
         import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.Type;
 import org.springframework.web.multipart.MultipartFile;
 
 @Entity
@@ -26,7 +27,7 @@ public class User {
     private Long id;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 255)
     private String username;
 
     @NotBlank
@@ -42,6 +43,7 @@ public class User {
     private MultipartFile logoFile;
 
     @Lob
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] logo;
 
     private String defaultCalendar;

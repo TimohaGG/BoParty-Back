@@ -21,15 +21,15 @@ public interface MenuRepos extends JpaRepository<Menu, Long> {
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
-o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date >=:startDate""")
-    Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate, Pageable pageable);
+o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date >=:startDate AND o.user.id = :userId""")
+    Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate,@Param("userId")long userId, Pageable pageable);
 
 
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
-o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date <:startDate""")
-    Page<MenuCardResponse> findAllForListArchive(@Param("startDate")LocalDateTime startDate, Pageable pageable);
+o.id,o.date, o.totalPrice, o.client, o.isPayed) from Menu o where o.date <:startDate AND o.user.id = :userId""")
+    Page<MenuCardResponse> findAllForListArchive(@Param("startDate")LocalDateTime startDate,@Param("userId")long userId, Pageable pageable);
 
     Page<Menu> findAllByDateAfter(LocalDateTime date, Pageable pageable);
     Page<Menu> findAllByDateStartingWith(LocalDateTime date, Pageable pageable);

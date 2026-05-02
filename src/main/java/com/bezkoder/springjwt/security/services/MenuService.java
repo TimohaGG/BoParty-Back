@@ -1,9 +1,9 @@
 package com.bezkoder.springjwt.security.services;
 
-import com.bezkoder.springjwt.models.Menu.CommonMenuInfo;
-import com.bezkoder.springjwt.models.Menu.MenuAdditionalInfo;
-import com.bezkoder.springjwt.models.Menu.Menu;
+import com.bezkoder.springjwt.models.Menu.*;
 import com.bezkoder.springjwt.models.PdfConfig;
+import com.bezkoder.springjwt.models.Position.Ingredient;
+import com.bezkoder.springjwt.models.Position.IngredientAmount;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.payload.request.Menus.*;
@@ -13,6 +13,7 @@ import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
 import com.bezkoder.springjwt.security.Exceptions.OrderEditException;
+import com.bezkoder.springjwt.security.Exceptions.ShoppingCreateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,10 +38,12 @@ public class MenuService {
     private final UserDetailsServiceImpl userService;
     private final ICommonInfoRepos commonInfoRepos;
     private final PdfConfig pdfConfig;
+    private final IShoppingListRepos iShoppingListRepos;
+
 
 
     @Autowired
-    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig) {
+    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos) {
         this.menuRepos = menuRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
@@ -49,6 +52,7 @@ public class MenuService {
         this.positionsRepos = positionsRepos;
         this.commonInfoRepos = commonInfoRepos;
         this.pdfConfig = pdfConfig;
+        this.iShoppingListRepos = iShoppingListRepos;
     }
 
     public List<Menu> getOrdersByUserId(Long userId) {
@@ -233,11 +237,11 @@ public class MenuService {
         this.menuRepos.save(order);
     }
 
-    public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive) {
+    public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive, long userId) {
         if(archive)
-            return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(), pageable).toList();
+            return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(),userId, pageable).toList();
         else
-            return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(), pageable).toList();
+            return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(),userId, pageable).toList();
     }
 
     public Integer getOrdersAmount(boolean archive) {
@@ -261,6 +265,31 @@ public class MenuService {
         }
         catch (Exception e){
             throw new OrderEditException("Can't delete menu info!");
+        }
+    }
+
+    public ShoppingList getShopping(long orderId) {
+        ShoppingList res = this.iShoppingListRepos.findShoppingListByOrderId(orderId).orElse(null);
+        if(res == null)
+            res = this.generateShoppingList(orderId);
+
+        return res;
+    }
+
+    private ShoppingList generateShoppingList(Long orderId) {
+        ShoppingList res = new ShoppingList();
+        Menu order = this.getOrderById(orderId);
+        for (PositionAmount pos : order.getPositionsAmount()){
+            for (IngredientAmount ing : pos.getPosition().getIngredients()){
+                ShoppingListItem item = new ShoppingListItem(ing.getIngredient(),res ,ing.getAmount() * pos.getAmount(),ing.getUnit());
+                res.addItem(item);
+            }
+        }
+        try{
+            res.setOrder(order);
+            return this.iShoppingListRepos.save(res);
+        }catch (Exception e){
+            throw new ShoppingCreateException(e.getMessage());
         }
     }
 

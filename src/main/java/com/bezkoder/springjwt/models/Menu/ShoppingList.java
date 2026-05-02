@@ -1,18 +1,25 @@
 package com.bezkoder.springjwt.models.Menu;
 
+import com.bezkoder.springjwt.payload.response.Menu.ShoppingListResp;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
+@Getter
+@Setter
+
 public class ShoppingList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-
     private Menu order;
 
     public ShoppingList() {
@@ -22,30 +29,6 @@ public class ShoppingList {
     private List<ShoppingListItem> items;
 
     private boolean needsUpdate = false;
-
-    public boolean isNeedsUpdate() {
-        return needsUpdate;
-    }
-
-    public void setNeedsUpdate(boolean needsUpdate) {
-        this.needsUpdate = needsUpdate;
-    }
-
-    public Menu getOrder() {
-        return order;
-    }
-
-    public void setOrder(Menu order) {
-        this.order = order;
-    }
-
-    public List<ShoppingListItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<ShoppingListItem> items) {
-        this.items = items;
-    }
 
     public void addItem(ShoppingListItem item) {
         if(this.items == null) {
@@ -61,9 +44,6 @@ public class ShoppingList {
 
     }
 
-    public int getId() {
-        return id;
-    }
 
     public void clearOldItems(List<ShoppingListItem> newIngs) {
         if(this.items != null) {
@@ -71,7 +51,7 @@ public class ShoppingList {
 
             List<ShoppingListItem> result = newIngs.stream().peek(
                     x->{
-                        ShoppingListItem item = this.items.stream().filter(y-> Objects.equals(y.getIngredient().getIngredient().getId(), x.getIngredient().getIngredient().getId())).findFirst().orElse(null);
+                        ShoppingListItem item = this.items.stream().filter(y-> Objects.equals(y.getIngredient().getId(), x.getIngredient().getId())).findFirst().orElse(null);
                         if(item != null) {
                             x.setBought(item.isBought());
                         }
@@ -82,6 +62,14 @@ public class ShoppingList {
 
         }
 
+    }
+
+    public static ShoppingListResp toRespDto(ShoppingList item){
+        return ShoppingListResp.builder()
+                .id(item.getId())
+                .needsUpdate(item.isNeedsUpdate())
+                .items(item.items.stream().map(ShoppingListItem::toRespDto).toList())
+                .build();
     }
 
 

@@ -100,6 +100,13 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({ShoppingCreateException.class})
+    public ResponseEntity<ExceptionMessage> handleException(ShoppingCreateException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
 
 
 
