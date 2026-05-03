@@ -222,8 +222,10 @@ public class MenuService {
         return this.commonInfoRepos.findAll();
     }
 
+    @Transactional
     public long deleteById(Long id) {
-        this.menuRepos.deleteById(id);
+        Menu order = this.getOrderById(id);
+        this.menuRepos.delete(order);
         return id;
     }
 
