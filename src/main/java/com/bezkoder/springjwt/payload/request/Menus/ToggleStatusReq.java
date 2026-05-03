@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ToggleStatusReq {
-    private int id;
+    private long id;
     private boolean status;
 }

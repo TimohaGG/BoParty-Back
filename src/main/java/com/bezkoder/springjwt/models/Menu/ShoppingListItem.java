@@ -13,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @Setter
-public class    ShoppingListItem {
+public class    ShoppingListItem{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -70,4 +70,13 @@ public class    ShoppingListItem {
                 .build();
     }
 
+//    @Override
+//    public boolean equals(Object obj) {
+//        if(obj instanceof ShoppingListItem){
+//            return ingredient.getId().equals(((ShoppingListItem) obj).ingredient.getId())
+//                    && unit.getId().equals(((ShoppingListItem) obj).unit.getId());
+//        }
+//        return false;
+//    }
+//
 }
