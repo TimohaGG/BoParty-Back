@@ -17,7 +17,7 @@ public class OrderResp {
     int shoppingSum;
     int staffSum;
     double taxSum;
-    int totalSum;
+    double totalSum;
     int salarySum;
 
 }

@@ -7,10 +7,7 @@ import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
 import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.itextpdf.text.BadElementException;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Image;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -26,12 +23,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 @AllArgsConstructor
@@ -70,17 +69,14 @@ public class Menu {
     private String format;
     @ColumnDefault("0688714410")
     private String phone;
-    private int totalPrice;
+    private double totalPrice;
 
     private int sortingOrder = 0;
 
     private boolean needsTax = false;
 
-    private double taxPercentage = 0.06D;
-    public double getTaxPercentageCalc() {
-        double totalPrice = getPrice() + getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
-        return Math.floor(totalPrice - totalPrice * (1-taxPercentage)) ;
-    }
+    private double taxPercentage = 10;
+
 
 
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
@@ -103,6 +99,9 @@ public class Menu {
     @ColumnDefault("false")
     private boolean isPayed;
 
+    private boolean govTax;
+    private double govTaxAmount;
+
 
     public String getDateFormatted() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -122,13 +121,47 @@ public class Menu {
                 .sum();
     }
 
-    public int getTotalPrice(){
-        int sum = getPrice() + getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
+    //returns menu price
+    public double getTotalPrice(){
+        //only positions
+        double menuPrice = getPrice();
+        //adding serving
         if(needsTax){
-            sum += getTaxPercentageCalc();
+            menuPrice =  menuPrice * (1 + taxPercentage / 100);
         }
-        return sum;
+        //adding additional servings
+
+        menuPrice+=getAdditionalInfoPrice();
+
+        //adding gov tax
+        if(govTax)
+            menuPrice = menuPrice / ((100-govTaxAmount) * 0.01);
+
+        return Math.round(menuPrice * 100.0) / 100.0;
+
     }
+
+    public double getAdditionalInfoPrice(){
+        return getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
+    }
+
+//    public int getPriceWithServing(){
+//        int sum = getPrice() + ;
+//        if(needsTax){
+//            sum += (int) getTaxPercentageCalc();
+//        }
+//        return sum;
+//    }
+
+    public double getTaxPercentageCalc() {
+
+        double totalPrice = getPrice();
+        return Math.floor(totalPrice * (1 + taxPercentage/100) - totalPrice) ;
+    }
+//    public double getGovTaxPercentageCalc() {
+//        double totalPrice = getPriceWithServing();
+//        return Math.floor(totalPrice * (1 + govTaxAmount/100) - totalPrice) ;
+//    }
 
 
     public List<PositionAmount> getPositionsAmount() {
@@ -177,6 +210,10 @@ public class Menu {
                 .isPayed(order.isPayed())
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
                 .additionalInfo(order.getAdditionalInfo().stream().map(MenuAdditionalInfo::toResponse).toList())
+                .serving(order.needsTax)
+                .taxAmount(order.getTaxPercentage())
+                .govTax(order.isGovTax())
+                .govTaxAmount(order.getGovTaxAmount())
                 .build();
     }
 
@@ -196,6 +233,7 @@ public class Menu {
             document.open();
             document.add(this.generateHeaderPdf(pdfConfig));
             document.add(this.generatePositionsPdf(pdfConfig));
+            document.add(this.generateSummaryPdf(pdfConfig));
 
             document.close();
             return out;
@@ -207,13 +245,22 @@ public class Menu {
 
 
 
+
+
     private Element generatePositionsPdf(PdfConfig pdfConfig) {
-        float[] cols = {2f, 2f,1f,1f,1f};
+
+
+        float[] cols = {3f, 3f,1f,1f,1f};
         PdfPTable table = new PdfPTable(cols);
         table.setWidthPercentage(100);
         table.addCell(this.generatePositionsHeader(pdfConfig));
 
         this.positionsAmount.forEach(pos -> {
+            if(pos.getTitle()!=null && !pos.getTitle().isBlank()){
+                PdfPCell cell = pdfConfig.defaultCell(pos.getTitle());
+                cell.setColspan(5);
+                table.addCell(cell);
+            }
             table.addCell(pdfConfig.defaultCell(pos.getPosName()));
             if(pos.getPosition().getImage() != null){
                 try {
@@ -221,7 +268,7 @@ public class Menu {
                     img.scaleToFit(50,50);
                     table.addCell(pdfConfig.getImageCell(img));
                 } catch (BadElementException | IOException e) {
-                    throw new RuntimeException(e);
+                    table.addCell(" ");
                 }
             }
             else{
@@ -236,11 +283,56 @@ public class Menu {
         return table;
     }
 
+    private Element generateSummaryPdf(PdfConfig pdfConfig) {
+        float[] cols = {3f, 3f};
+        PdfPTable table = new PdfPTable(cols);
+        table.setWidthPercentage(100);
+        table.addCell(this.generateSummaryHeader(pdfConfig));
+        this.generateTotalPriceRow(table, pdfConfig);
+        this.additionalInfo.forEach(pos -> {
+            table.addCell(pdfConfig.defaultCell(pos.getTitle()));
+            StringBuilder priceString = new StringBuilder();
+            priceString.append(pos.getDescription());
+            priceString.append("\n");
+            if (pos.getPrice()!=0) {
+                priceString.append(pos.getPrice());
+                priceString.append(" грн");
+            }
+            table.addCell(pdfConfig.defaultCell(priceString.toString()));
+        });
+        this.generateFinalPriceRow(table, pdfConfig);
+        return table;
+    }
+
     private PdfPCell generatePositionsHeader(PdfConfig config) {
         PdfPCell cell = config.defaultCellBold("Позиції", config.accentTextColor);
         cell.setBackgroundColor(config.accentColor);
         cell.setColspan(5);
         return cell;
+    }
+
+    private PdfPCell generateSummaryHeader(PdfConfig config) {
+        PdfPCell cell = config.defaultCellBold("Загалом", config.accentTextColor);
+        cell.setBackgroundColor(config.summaryHEaderColor);
+        cell.setColspan(2);
+        return cell;
+    }
+
+    private void generateTotalPriceRow(PdfPTable table, PdfConfig config) {
+        PdfPCell header = config.defaultCell("Разом по меню, грн");
+        PdfPCell amount = config.defaultCell(NumberFormat.getInstance(Locale.US).format(getPrice()).replace(","," ") + " грн");
+        table.addCell(header);
+        table.addCell(amount);
+    }
+
+    private void generateFinalPriceRow(PdfPTable table, PdfConfig config) {
+        PdfPCell header = config.defaultCell("Всього за заходом: ",1);
+
+        String price = NumberFormat.getInstance(Locale.US).format(getTotalPrice()).replace(","," ") + " грн";
+
+        PdfPCell amount = config.defaultCell(price,1);
+        table.addCell(header);
+        table.addCell(amount);
     }
 
     private PdfPTable generateHeaderPdf(PdfConfig config){

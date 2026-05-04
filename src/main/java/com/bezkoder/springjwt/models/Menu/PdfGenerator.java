@@ -35,6 +35,7 @@ public class PdfGenerator {
     String summaryHeader = "Загалом";
     Map<String, Tuple<String,byte[]>> summary = new LinkedHashMap<>();
 
+    @Deprecated
     public PdfGenerator(Menu order, MenuInfo info) {
         this.order = order;
 

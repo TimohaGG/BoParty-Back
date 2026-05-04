@@ -18,7 +18,7 @@ public class MenuCardResponse {
     private long id;
     @JsonFormat(pattern = "dd.MM.yyyy hh:mm")
     private LocalDateTime date;
-    private long totalPrice;
+    private double totalPrice;
     private String client;
     private boolean isPayed;
 }

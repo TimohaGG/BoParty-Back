@@ -21,10 +21,16 @@ public class MenuResponse {
     private String phone;
     private boolean isPayed;
 
-    private int totalPrice;
+    private double totalPrice;
 
     private List<PositionAmountResponse> positions;
 
     private List<MenuInfoResponse> additionalInfo;
+
+    private boolean serving;
+    private double taxAmount;
+
+    private boolean govTax;
+    private double govTaxAmount;
 
 }

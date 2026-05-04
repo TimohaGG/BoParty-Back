@@ -36,7 +36,7 @@ public class OrderData {
     };
 
 
-    public int totalSum(){
+    public double totalSum(){
         return menu != null ? menu.getTotalPrice() : 0;
     }
 

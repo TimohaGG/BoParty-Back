@@ -16,12 +16,14 @@ public class PdfConfig {
     Font mainFont;
     public BaseColor accentColor;
     public BaseColor accentTextColor;
+    public BaseColor summaryHEaderColor;
     public PdfConfig() {
         try {
             this.baseFont =  BaseFont.createFont("fonts/Arial Unicode.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             this.mainFont = new Font(baseFont,14);
             this.accentColor = new BaseColor(250,187,7);
             this.accentTextColor = BaseColor.WHITE;
+            this.summaryHEaderColor = new BaseColor(91,91,91);
         }
         catch (Exception e) {
 
@@ -31,7 +33,7 @@ public class PdfConfig {
     }
     public PdfPCell defaultCell(String text) {
         PdfPCell cell = new PdfPCell(new Phrase(text,this.mainFont));
-        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setPaddingBottom(15);
         cell.setPaddingTop(15);
@@ -42,7 +44,7 @@ public class PdfConfig {
     public PdfPCell getImageCell(Image image) {
         PdfPCell cell = new PdfPCell(image);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setPaddingBottom(10);
         cell.setPaddingTop(10);
         return cell;
@@ -52,14 +54,16 @@ public class PdfConfig {
         PdfPCell cell = new PdfPCell(new Phrase(text,new Font(baseFont,14,style)));
         cell.setPaddingBottom(10);
         cell.setPaddingTop(10);
-        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         return cell;
-    }public PdfPCell defaultCellBold(String text, BaseColor color) {
+    }
+
+    public PdfPCell defaultCellBold(String text, BaseColor color) {
         PdfPCell cell = new PdfPCell(new Phrase(text,new Font(baseFont,14,Font.BOLD,color)));
         cell.setPaddingBottom(10);
         cell.setPaddingTop(10);
-        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         return cell;
     }

@@ -21,5 +21,10 @@ public class MenuCreateRequest {
     private String phoneNumber;
     private List<PosAmountRequest> positions;
     private List<MenuInfoRequest> additionalInfo;
+    private boolean serving;
+    private double taxAmount;
+
+    private boolean govTax;
+    private int govTaxAmount;
 
 }

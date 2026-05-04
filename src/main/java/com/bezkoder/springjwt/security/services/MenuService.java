@@ -80,6 +80,11 @@ public class MenuService {
                     .guestsAmount(order.getGuestsAmount())
                     .format(order.getFormat())
                     .user(this.userService.getCurrentUser())
+                    .needsTax(order.isServing())
+                    .taxPercentage(order.getTaxAmount())
+                    .govTaxAmount(order.getGovTaxAmount())
+                    .govTax(order.isGovTax())
+
 //                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList())
                     .build();
         }catch (Exception e){
@@ -131,6 +136,10 @@ public class MenuService {
         order.setDuration(request.getDuration());
         order.setFormat(request.getFormat());
         order.setPhone(request.getPhoneNumber());
+        order.setNeedsTax(request.isServing());
+        order.setTaxPercentage(request.getTaxAmount());
+        order.setGovTax(request.isGovTax());
+        order.setGovTaxAmount(request.getGovTaxAmount());
 
         replacePositions(order, request.getPositions());
         replaceAdditionalInfo(order, request.getAdditionalInfo());
