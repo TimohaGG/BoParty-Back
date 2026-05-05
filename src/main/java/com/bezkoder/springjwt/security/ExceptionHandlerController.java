@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,6 +104,13 @@ public class ExceptionHandlerController {
     @ExceptionHandler({ShoppingCreateException.class})
     public ResponseEntity<ExceptionMessage> handleException(ShoppingCreateException e) {
         ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({SQLException.class})
+    public ResponseEntity<ExceptionMessage> handleException(SQLException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,"SQL error! Contact the administrator");
         logger.log(Level.SEVERE, e.getMessage());
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
     }

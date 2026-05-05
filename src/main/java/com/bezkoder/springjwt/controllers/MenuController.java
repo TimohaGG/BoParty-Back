@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.print.attribute.standard.PageRanges;
 import java.io.ByteArrayOutputStream;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.List;
 
 @Controller
@@ -101,8 +103,10 @@ public class MenuController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Long> delete(@PathVariable Long id) {
+    public ResponseEntity<Long> delete(@PathVariable Long id) throws SQLException {
+
         long deletedId = this.menuService.deleteById(id);
+
         return ResponseEntity.ok(deletedId);
     }
 

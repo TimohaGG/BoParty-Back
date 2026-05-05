@@ -1,7 +1,6 @@
 package com.bezkoder.springjwt.models.Menu;
 
 import com.bezkoder.springjwt.models.Position.Ingredient;
-import com.bezkoder.springjwt.models.Position.IngredientAmount;
 import com.bezkoder.springjwt.models.Position.Units;
 import com.bezkoder.springjwt.payload.response.Menu.ShoppingListItemResp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,7 +17,7 @@ public class    ShoppingListItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Ingredient ingredient;
 
     private double amount;
@@ -30,7 +29,7 @@ public class    ShoppingListItem {
     private boolean isBought;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private ShoppingList shoppingList;
 
     @Column(nullable = true)
