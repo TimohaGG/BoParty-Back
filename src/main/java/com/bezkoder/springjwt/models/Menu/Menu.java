@@ -122,7 +122,7 @@ public class Menu {
     }
 
     //returns menu price
-    public double getTotalPrice(){
+    public int getTotalPrice(){
         //only positions
         double menuPrice = getPrice();
         //adding serving
@@ -137,8 +137,31 @@ public class Menu {
         if(govTax)
             menuPrice = menuPrice / ((100-govTaxAmount) * 0.01);
 
-        return Math.round(menuPrice * 100.0) / 100.0;
 
+        return (int)Math.round(menuPrice);
+    }
+
+    public int getServingPrice(){
+        double menuPrice = getPrice();
+        double withServing =  menuPrice * (1 + taxPercentage / 100);
+        return (int)Math.round((withServing - menuPrice));
+    }
+
+    public int getGovTaxPrice(){
+        double menuPrice = getPrice();
+        //adding serving
+        if(needsTax){
+            menuPrice =  menuPrice * (1 + taxPercentage / 100);
+        }
+        //adding additional servings
+
+        menuPrice+=getAdditionalInfoPrice();
+
+        //adding gov tax
+        double withGovTax = menuPrice / ((100-govTaxAmount) * 0.01);
+
+
+        return (int)Math.round((withGovTax - menuPrice));
     }
 
     public double getAdditionalInfoPrice(){
@@ -300,6 +323,18 @@ public class Menu {
             }
             table.addCell(pdfConfig.defaultCell(priceString.toString()));
         });
+
+        if(this.needsTax){
+            table.addCell(pdfConfig.defaultCell("Обслуговування " + this.taxPercentage + " %: "));
+            table.addCell(pdfConfig.defaultCell(String.valueOf(getServingPrice())));
+        }
+        if(this.govTax){
+            table.addCell(pdfConfig.defaultCell("ФОП + " + this.govTaxAmount + " %: "));
+            table.addCell(pdfConfig.defaultCell(String.valueOf(getGovTaxPrice())));
+        }
+
+
+
         this.generateFinalPriceRow(table, pdfConfig);
         return table;
     }
