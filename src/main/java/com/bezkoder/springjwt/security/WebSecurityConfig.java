@@ -94,14 +94,16 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("http://localhost:4200",
+    configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
             "https://boparty.space",
             "http://boparty.space",
             "https://www.boparty.space",
             "http://www.boparty.space",
-            "http://localhost:4200"
-
-    )); // frontend origin
+            "https://72.60.88.151:*",
+            "http://72.60.88.151:*"
+    ));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
