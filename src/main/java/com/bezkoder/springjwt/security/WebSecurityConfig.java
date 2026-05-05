@@ -96,7 +96,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:*",
-            "http://127.0.0.1:*",
+            "http://127.0.0.1:8085",
             "https://boparty.space",
             "http://boparty.space",
             "https://www.boparty.space",
