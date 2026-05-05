@@ -10,10 +10,7 @@ import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.repository.*;
-import com.bezkoder.springjwt.security.Exceptions.NoContentException;
-import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
-import com.bezkoder.springjwt.security.Exceptions.OrderEditException;
-import com.bezkoder.springjwt.security.Exceptions.ShoppingCreateException;
+import com.bezkoder.springjwt.security.Exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,11 +36,12 @@ public class MenuService {
     private final ICommonInfoRepos commonInfoRepos;
     private final PdfConfig pdfConfig;
     private final IShoppingListRepos iShoppingListRepos;
+    private final IShoppingListItemRepos iShoppingListItemRepos;
 
 
 
     @Autowired
-    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos) {
+    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos, IShoppingListItemRepos iShoppingListItemRepos) {
         this.menuRepos = menuRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
@@ -53,6 +51,7 @@ public class MenuService {
         this.commonInfoRepos = commonInfoRepos;
         this.pdfConfig = pdfConfig;
         this.iShoppingListRepos = iShoppingListRepos;
+        this.iShoppingListItemRepos = iShoppingListItemRepos;
     }
 
     public List<Menu> getOrdersByUserId(Long userId) {
@@ -140,6 +139,8 @@ public class MenuService {
         order.setTaxPercentage(request.getTaxAmount());
         order.setGovTax(request.isGovTax());
         order.setGovTaxAmount(request.getGovTaxAmount());
+        if(order.getShoppingList()!=null)
+            order.getShoppingList().setNeedsUpdate(true);
 
         replacePositions(order, request.getPositions());
         replaceAdditionalInfo(order, request.getAdditionalInfo());
@@ -248,6 +249,16 @@ public class MenuService {
         this.menuRepos.save(order);
     }
 
+    public boolean toggleShoppingStatus(ToggleStatusReq req) {
+        ShoppingListItem item = this.iShoppingListItemRepos.findById(req.getId()).orElse(null);
+        if(item == null){
+            throw new ToggleShoppingException("Can't toggle shopping list item with id " + req.getId());
+        }
+        item.setBought(req.isStatus());
+        this.iShoppingListItemRepos.save(item);
+        return req.isStatus();
+    }
+
     public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive, long userId) {
         if(archive)
             return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(),userId, pageable).toList();
@@ -298,11 +309,31 @@ public class MenuService {
         }
         try{
             res.setOrder(order);
+            normalizeList(res);
             return this.iShoppingListRepos.save(res);
         }catch (Exception e){
             throw new ShoppingCreateException(e.getMessage());
         }
     }
+
+    private ShoppingList normalizeList(ShoppingList list) {
+        Map<String, ShoppingListItem> normalizedItems = new LinkedHashMap<>();
+
+        for (ShoppingListItem item : list.getItems()) {
+            String key = item.getIngredient().getId() + ":" + item.getUnit().getId();
+            ShoppingListItem existingItem = normalizedItems.get(key);
+
+            if (existingItem != null) {
+                existingItem.setAmount(existingItem.getAmount() + item.getAmount());
+            } else {
+                normalizedItems.put(key, item);
+            }
+        }
+
+        list.setItems(new ArrayList<>(normalizedItems.values()));
+        return list;
+    }
+
 
 
 //    public List<Orders> getTempOrders(){

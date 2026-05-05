@@ -153,6 +153,11 @@ public class MenuController {
 
     }
 
+    @PostMapping("/shopping/toggle")
+    public ResponseEntity<Boolean> toggleStatus(@RequestBody ToggleStatusReq req) {
+        return ResponseEntity.ok(this.menuService.toggleShoppingStatus(req));
+    }
+
 
 
 
