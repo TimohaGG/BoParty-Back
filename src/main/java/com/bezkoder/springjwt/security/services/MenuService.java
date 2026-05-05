@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -290,12 +287,35 @@ public class MenuService {
         }
     }
 
+    @Transactional
     public ShoppingList getShopping(long orderId) {
+
         ShoppingList res = this.iShoppingListRepos.findShoppingListByOrderId(orderId).orElse(null);
-        if(res == null)
+
+        if(res!=null && res.isNeedsUpdate()){
+            this.removeShoppingList(res.getId());
+            res = this.generateShoppingList(orderId);
+        }
+        else if(res == null)
             res = this.generateShoppingList(orderId);
 
+
+
         return res;
+    }
+
+    private void removeShoppingList(Long id) {
+        ShoppingList shoppingList = this.iShoppingListRepos.findById(id)
+                .orElseThrow(() -> new NoContentException("Shopping list not found"));
+
+        if (shoppingList.getOrder() != null) {
+            shoppingList.getOrder().setShoppingList(null);
+            shoppingList.setOrder(null);
+        }
+
+        shoppingList.clearItems();
+        this.iShoppingListRepos.delete(shoppingList);
+        this.iShoppingListRepos.flush();
     }
 
     private ShoppingList generateShoppingList(Long orderId) {

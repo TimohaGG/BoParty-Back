@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class ShoppingListResp {
 
-    private int id;
+    private Long id;
     private List<ShoppingListItemResp> items;
     private boolean needsUpdate;
 }

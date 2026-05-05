@@ -16,15 +16,16 @@ import java.util.Objects;
 public class ShoppingList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @OneToOne(fetch = FetchType.LAZY)
+    private Long id;
+    @OneToOne(fetch = FetchType.EAGER)
     private Menu order;
 
     public ShoppingList() {
     }
 
-    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ShoppingListItem> items;
+
 
     private boolean needsUpdate = false;
 
