@@ -95,12 +95,11 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(List.of("http://localhost:4200",
-//            "http://72.60.88.151:4200",
-//            "http://72.60.88.151:4200",
-//            "http://72.60.88.151",
-//            "http://72.60.88.151",
             "https://boparty.space",
-            "http://boparty.space"
+            "http://boparty.space",
+            "https://www.boparty.space",
+            "http://www.boparty.space",
+            "http://localhost:4200"
 
     )); // frontend origin
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
