@@ -9,6 +9,7 @@ import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
+import com.bezkoder.springjwt.payload.response.Menu.MinMenuResp;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -354,6 +356,60 @@ public class MenuService {
         return list;
     }
 
+    public List<MinMenuResp> getAllMin() {
+
+        return this.menuRepos.findAllMin();
+    }
+
+    public MinMenuResp joinOrders(Long[] ordersIds) {
+        List<Menu> menuList = this.menuRepos.findAllById(Arrays.stream(ordersIds).toList());
+        if(menuList.isEmpty())
+            throw new NoContentException("Menus not found");
+
+
+        List<PositionAmount> positions = menuList.stream().flatMap(x->x.getPositionsAmount().stream()).toList();
+
+        Menu menu = Menu.builder()
+                .user(this.userService.getCurrentUser())
+                .temporary(true)
+                .date(LocalDateTime.now())
+                .client(menuList.stream().map(Menu::getDateFormatted).collect(Collectors.joining(" + ")))
+                .totalPrice(menuList.stream().map(Menu::getTotalPrice).mapToInt(Integer::intValue).sum())
+                .build();
+        try{
+            this.menuRepos.save(menu);
+            menu.setPositionsAmount(new ArrayList<>());
+
+            List<PositionAmount> merged = positions.stream()
+                    .collect(Collectors.toMap(
+                            pa -> pa.getPosition().getId(),
+                            pa -> {
+                                PositionAmount copy = new PositionAmount();
+                                copy.setPosition(pa.getPosition());
+                                copy.setAmount(pa.getAmount());
+                                return copy;
+                            },
+                            (existing, incoming) -> {
+                                existing.setAmount(
+                                        existing.getAmount() + incoming.getAmount()
+                                );
+                                return existing;
+                            }
+                    ))
+                    .values()
+                    .stream()
+                    .toList();
+
+            for(PositionAmount pos : merged){
+                menu.addPosition(new PositionAmount(pos.getPosition(),menu,pos.getAmount()));
+            }
+            this.menuRepos.save(menu);
+            return menu.toMinResp();
+        }
+        catch (Exception e){
+            throw new OrderCreateException("Can't join menu!");
+        }
+    }
 
 
 //    public List<Orders> getTempOrders(){

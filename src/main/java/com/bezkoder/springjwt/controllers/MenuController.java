@@ -6,10 +6,7 @@ import com.bezkoder.springjwt.models.Menu.ShoppingList;
 import com.bezkoder.springjwt.models.Menu.ShoppingListItem;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.request.Menus.*;
-import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
-import com.bezkoder.springjwt.payload.response.Menu.MenuCommonInfoResponse;
-import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
-import com.bezkoder.springjwt.payload.response.Menu.ShoppingListResp;
+import com.bezkoder.springjwt.payload.response.Menu.*;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.UserNotFoundException;
 import com.bezkoder.springjwt.security.services.MenuService;
@@ -26,6 +23,8 @@ import javax.print.attribute.standard.PageRanges;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -49,6 +48,12 @@ public class MenuController {
             throw new UserNotFoundException("Can't find current user");
         }
         List<MenuResponse> res = this.menuService.getOrdersByUserId(current.getId()).stream().map(Menu::toDto).toList();
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/min/all")
+    public ResponseEntity<List<MinMenuResp>> getMinAll() {
+        List<MinMenuResp> res = this.menuService.getAllMin();
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -158,11 +163,11 @@ public class MenuController {
         return ResponseEntity.ok(this.menuService.toggleShoppingStatus(req));
     }
 
+    @PostMapping("/shopping/join")
+    public ResponseEntity<MinMenuResp> getJoinShoppingList(@RequestBody JoinMenuReq ordersIds){
 
-
-
-
-
+        return ResponseEntity.ok(this.menuService.joinOrders(ordersIds.getOrdersIds()));
+    }
 
 
 }

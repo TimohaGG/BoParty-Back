@@ -1,25 +1,27 @@
 package com.bezkoder.springjwt.payload.response.Menu;
 
-import com.bezkoder.springjwt.models.Menu.Status;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
-public class MenuCardResponse {
-    private long id;
-    @JsonFormat(pattern = "dd.MM.yyyy hh:mm")
+@Builder
+public class MinMenuResp {
+    private Long id;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime date;
-    private double totalPrice;
+    @Column(nullable = true)
     private String client;
-    private boolean isPayed;
+    private double totalPrice;
     private boolean temporary;
+
 }

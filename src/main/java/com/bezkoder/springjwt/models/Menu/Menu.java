@@ -5,6 +5,7 @@ import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
+import com.bezkoder.springjwt.payload.response.Menu.MinMenuResp;
 import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itextpdf.text.*;
@@ -98,7 +99,7 @@ public class Menu {
 
     @ColumnDefault("false")
     private boolean isPayed;
-
+    @ColumnDefault("false")
     private boolean govTax;
     private double govTaxAmount;
 
@@ -165,7 +166,10 @@ public class Menu {
     }
 
     public double getAdditionalInfoPrice(){
-        return getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
+        if(additionalInfo !=null)
+            return getAdditionalInfo().stream().mapToInt(MenuAdditionalInfo::getPrice).sum();
+        else
+            return 0;
     }
 
 //    public int getPriceWithServing(){
@@ -415,5 +419,15 @@ public class Menu {
         }catch (Exception e){
             throw new PdfGenerateException("Can't set logo image");
         }
+    }
+
+    public MinMenuResp toMinResp(){
+        return MinMenuResp.builder()
+                .id(this.getId())
+                .client(this.getClient())
+                .date(this.getDate())
+                .totalPrice(this.getTotalPrice())
+                .temporary(this.isTemporary())
+                .build();
     }
 }
