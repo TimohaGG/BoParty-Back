@@ -36,6 +36,13 @@ public class ShoppingList {
         this.items.add(item);
     }
 
+    public void removeItem(ShoppingListItem item) {
+        if(this.items != null) {
+            this.items.remove(item);
+        }
+        item.setShoppingList(null);
+    }
+
     public void clearItems() {
         if(this.items != null) {
             this.items.clear();

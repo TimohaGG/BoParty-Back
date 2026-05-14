@@ -169,5 +169,37 @@ public class MenuController {
         return ResponseEntity.ok(this.menuService.joinOrders(ordersIds.getOrdersIds()));
     }
 
+    @PostMapping("/shopping/comment/add")
+    public ResponseEntity<String> addComment( @RequestBody AddCommentReq req){
+        if(req.getComment() ==null || req.getComment().isBlank())
+            return ResponseEntity.badRequest().body("Comment cannot be empty");
+
+        String res = this.menuService.addComment(req);
+        return ResponseEntity.ok(res);
+    }
+
+    @DeleteMapping("/shopping/comment/remove/{id}")
+    public ResponseEntity<Boolean> removeComment(@PathVariable Long id){
+        if(id ==null)
+            return ResponseEntity.badRequest().body(false);
+
+        Boolean res = this.menuService.removeComment(id);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/shopping/item/add")
+    public ResponseEntity<ShoppingListItemResp> addItem(@RequestBody ShoppingListItemReq req){
+        ShoppingListItemResp item = this.menuService.addItem(req);
+        return ResponseEntity.ok(item);
+    }
+
+    @DeleteMapping("/shopping/item/remove/{id}")
+    public ResponseEntity<Boolean> removeItem(@PathVariable Long id){
+        if(id == null)
+            return ResponseEntity.badRequest().body(false);
+
+        return ResponseEntity.ok(this.menuService.removeItem(id));
+    }
+
 
 }

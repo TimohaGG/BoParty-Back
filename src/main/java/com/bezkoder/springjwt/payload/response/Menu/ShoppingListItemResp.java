@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ShoppingListItemResp {
-    long id;
+    Long id;
     IngredientResponse ingredient;
     double amount;
     boolean isBought;

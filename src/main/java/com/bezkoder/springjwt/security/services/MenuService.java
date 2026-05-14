@@ -6,10 +6,12 @@ import com.bezkoder.springjwt.models.Position.Ingredient;
 import com.bezkoder.springjwt.models.Position.IngredientAmount;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
+import com.bezkoder.springjwt.models.Position.Units;
 import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MinMenuResp;
+import com.bezkoder.springjwt.payload.response.Menu.ShoppingListItemResp;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,13 @@ public class MenuService {
     private final PdfConfig pdfConfig;
     private final IShoppingListRepos iShoppingListRepos;
     private final IShoppingListItemRepos iShoppingListItemRepos;
+    private final IIngredientsRepos ingredientsRepos;
+    private final IUnitRepos unitRepos;
 
 
 
     @Autowired
-    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos, IShoppingListItemRepos iShoppingListItemRepos) {
+    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos, IShoppingListItemRepos iShoppingListItemRepos, IIngredientsRepos ingredientsRepos, IUnitRepos unitRepos) {
         this.menuRepos = menuRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
@@ -51,6 +55,8 @@ public class MenuService {
         this.pdfConfig = pdfConfig;
         this.iShoppingListRepos = iShoppingListRepos;
         this.iShoppingListItemRepos = iShoppingListItemRepos;
+        this.ingredientsRepos = ingredientsRepos;
+        this.unitRepos = unitRepos;
     }
 
     public List<Menu> getOrdersByUserId(Long userId) {
@@ -409,6 +415,101 @@ public class MenuService {
         catch (Exception e){
             throw new OrderCreateException("Can't join menu!");
         }
+    }
+
+    public String addComment(AddCommentReq req) {
+        ShoppingListItem item = this.iShoppingListItemRepos.findById(req.getShoppingItemId()).orElse(null);
+        if (item==null)
+            throw new NoContentException("Shopping list item not found");
+        item.setComment(req.getComment());
+        try{
+            this.iShoppingListItemRepos.save(item);
+            return item.getComment();
+        }catch (Exception ex){
+            throw new ShoppingCreateException(ex.getMessage());
+        }
+    }
+
+    public Boolean removeComment(Long id) {
+        ShoppingListItem item = this.iShoppingListItemRepos.findById(id).orElse(null);
+        if (item==null)
+            throw new NoContentException("Shopping list item not found");
+        item.setComment(null);
+        try{
+            this.iShoppingListItemRepos.save(item);
+            return item.getComment() ==null;
+        }catch (Exception ex){
+            throw new ShoppingCreateException(ex.getMessage());
+        }
+    }
+
+    @Transactional
+    public Boolean removeItem(Long id) {
+        ShoppingListItem item = this.iShoppingListItemRepos.findById(id)
+                .orElseThrow(() -> new NoContentException("Shopping list item not found"));
+
+        try {
+            if (item.getShoppingList() != null) {
+                item.getShoppingList().removeItem(item);
+            }
+
+            this.iShoppingListItemRepos.delete(item);
+            return true;
+        } catch (Exception ex) {
+            throw new ShoppingCreateException(ex.getMessage());
+        }
+    }
+
+    @Transactional
+    public ShoppingListItemResp addItem(ShoppingListItemReq req) {
+        ShoppingList shoppingList = this.iShoppingListRepos.findById(req.getShoppingListId())
+                .orElseThrow(() -> new NoContentException("Shopping list not found"));
+
+        Ingredient ingredient = this.ingredientsRepos.findById(req.getIngredientId())
+                .orElseThrow(() -> new NoContentException("Ingredient not found"));
+
+        Units unit = getShoppingItemUnit(req);
+
+        if (shoppingList.getItems() == null) {
+            shoppingList.setItems(new ArrayList<>());
+        }
+
+        ShoppingListItem item = shoppingList.getItems()
+                .stream()
+                .filter(existing -> Objects.equals(existing.getIngredient().getId(), ingredient.getId())
+                        && Objects.equals(existing.getUnit().getId(), unit.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (item != null) {
+            item.setAmount(item.getAmount() + req.getAmount());
+        } else {
+            item = new ShoppingListItem(ingredient, shoppingList, req.getAmount(), unit);
+            shoppingList.addItem(item);
+        }
+
+        try {
+            ShoppingListItem savedItem = this.iShoppingListItemRepos.saveAndFlush(item);
+            return ShoppingListItem.toRespDto(savedItem);
+        } catch (Exception ex) {
+            throw new ShoppingCreateException(ex.getMessage());
+        }
+    }
+
+    private Units getShoppingItemUnit(ShoppingListItemReq req) {
+        if (req.getUnitId() != null) {
+            return this.unitRepos.findById(req.getUnitId())
+                    .orElseThrow(() -> new NoContentException("Unit not found"));
+        }
+
+        if (req.getUnitName() != null && !req.getUnitName().isBlank()) {
+            Units unit = this.unitRepos.findByUnitName(req.getUnitName());
+            if (unit != null) {
+                return unit;
+            }
+        }
+
+        throw new NoContentException("Unit not found");
     }
 
 
