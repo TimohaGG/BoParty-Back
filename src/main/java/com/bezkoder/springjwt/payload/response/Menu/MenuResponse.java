@@ -16,7 +16,7 @@ public class MenuResponse {
     private LocalDateTime date;
     private String client;
     private int guestsAmount;
-    private int duration;
+    private String duration;
     private String format;
     private String phone;
     private boolean isPayed;

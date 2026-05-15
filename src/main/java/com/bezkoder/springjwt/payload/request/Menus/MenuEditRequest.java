@@ -17,7 +17,7 @@ public class MenuEditRequest {
     private String date;
     private String client;
     private int guestsAmount;
-    private int duration;
+    private String duration;
     private String format;
     private String phoneNumber;
     private List<PosAmountRequest> positions;

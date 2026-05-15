@@ -48,7 +48,7 @@ public class Menu {
         date = LocalDate.now().atStartOfDay();
         client = "";
         guestsAmount = 0;
-        duration = 0;
+        duration = "";
         format = "Бокси";
         phone = "0688714410";
         id = 0L;
@@ -65,7 +65,7 @@ public class Menu {
     @Column(nullable = true)
     private int guestsAmount;
     @Column(nullable = true)
-    private int duration;
+    private String duration;
     @Column(nullable = true)
     private String format;
     @ColumnDefault("0688714410")
@@ -390,7 +390,7 @@ public class Menu {
         table.addCell(config.defaultCell("Початок заходу"));
         table.addCell(config.defaultCell(this.getDate().format(DateTimeFormatter.ofPattern("HH:mm"))));
         table.addCell(config.defaultCell("Тривалість"));
-        table.addCell(config.defaultCell(Integer.toString(this.getDuration())));
+        table.addCell(config.defaultCell(this.getDuration()));
         table.addCell(config.defaultCell("Кі-сть запрошених"));
         table.addCell(config.defaultCell(Integer.toString(this.getGuestsAmount())));
         table.addCell(config.defaultCell("Формат заходу"));
