@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.controllers;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Base64;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,12 +71,17 @@ public class AuthController {
     List<String> roles = userDetails.getAuthorities().stream()
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
+    String logo = userRepository.findById(userDetails.getId())
+            .map(User::getLogo)
+            .map(Base64.getEncoder()::encodeToString)
+            .orElse(null);
 
     return ResponseEntity.ok(new JwtResponse(jwt,
             userDetails.getId(),
             userDetails.getUsername(),
             userDetails.getEmail(),
-            roles));
+            roles,
+            logo));
   }
 
   @PostMapping("/signup")

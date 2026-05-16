@@ -344,8 +344,22 @@ public class Menu {
     }
 
     private PdfPCell generatePositionsHeader(PdfConfig config) {
+        String hex = this.user!=null && this.user.getDefaultColor() != null ? this.user.getDefaultColor() : "";
+        BaseColor customColor;
+        if(hex.isBlank()){
+            customColor = config.accentColor;
+        }
+        else{
+            customColor = new BaseColor(
+                    Integer.valueOf(hex.substring(1, 3), 16),
+                    Integer.valueOf(hex.substring(3, 5), 16),
+                    Integer.valueOf(hex.substring(5, 7), 16)
+            );
+        }
+
+
         PdfPCell cell = config.defaultCellBold("Позиції", config.accentTextColor);
-        cell.setBackgroundColor(config.accentColor);
+        cell.setBackgroundColor(customColor);
         cell.setColspan(5);
         return cell;
     }
@@ -404,11 +418,7 @@ public class Menu {
 
     private PdfPCell getLogoImage(){
         try{
-            ClassPathResource classpath = new ClassPathResource("static/asserts/img/logo.png");
-            byte[] imageBytes;
-            try (InputStream inputStream = classpath.getInputStream()) {
-                imageBytes = inputStream.readAllBytes();
-            }
+            byte[] imageBytes = getLogoImageBytes();
             Image image = Image.getInstance(imageBytes);
             image.scaleToFit(150,150);
             PdfPCell cell = new PdfPCell(image);
@@ -418,6 +428,17 @@ public class Menu {
             return cell;
         }catch (Exception e){
             throw new PdfGenerateException("Can't set logo image");
+        }
+    }
+
+    private byte[] getLogoImageBytes() throws IOException {
+        if (this.user != null && this.user.getLogo() != null && this.user.getLogo().length > 0) {
+            return this.user.getLogo();
+        }
+
+        ClassPathResource classpath = new ClassPathResource("static/asserts/img/logo.png");
+        try (InputStream inputStream = classpath.getInputStream()) {
+            return inputStream.readAllBytes();
         }
     }
 
