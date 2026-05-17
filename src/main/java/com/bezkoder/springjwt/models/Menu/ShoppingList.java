@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.models.Menu;
 
+import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.payload.response.Menu.ShoppingListResp;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -75,6 +77,7 @@ public class ShoppingList {
                 .id(item.getId())
                 .needsUpdate(item.isNeedsUpdate())
                 .items(item.items.stream().map(ShoppingListItem::toRespDto).toList())
+                .positions(item.order.getPositionsAmount().stream().map(PositionAmount::toDto).collect(Collectors.toList()))
                 .build();
     }
 
