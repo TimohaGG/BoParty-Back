@@ -275,12 +275,11 @@ public class Menu {
 
 
     private Element generatePositionsPdf(PdfConfig pdfConfig) {
-
-
         float[] cols = {3f, 3f,1f,1f,1f};
         PdfPTable table = new PdfPTable(cols);
         table.setWidthPercentage(100);
         table.addCell(this.generatePositionsHeader(pdfConfig));
+        this.generatePositionsHeaderDescription(pdfConfig,table);
 
         this.positionsAmount.forEach(pos -> {
             if(pos.getTitle()!=null && !pos.getTitle().isBlank()){
@@ -308,6 +307,14 @@ public class Menu {
 
         });
         return table;
+    }
+
+    private void generatePositionsHeaderDescription(PdfConfig pdfConfig, PdfPTable table) {
+        table.addCell(pdfConfig.defaultCell("Найменування",1));
+        table.addCell(pdfConfig.defaultCell(""));
+        table.addCell(pdfConfig.defaultCell("Вихід, грам",1));
+        table.addCell(pdfConfig.defaultCell("К-сть порцій",1));
+        table.addCell(pdfConfig.defaultCell("Ціна, грн",1));
     }
 
     private Element generateSummaryPdf(PdfConfig pdfConfig) {
