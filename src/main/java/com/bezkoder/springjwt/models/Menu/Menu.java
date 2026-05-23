@@ -6,6 +6,7 @@ import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MenuResponse;
 import com.bezkoder.springjwt.payload.response.Menu.MinMenuResp;
+import com.bezkoder.springjwt.payload.response.Positions.PositionAmountResponse;
 import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itextpdf.text.*;
@@ -235,7 +236,7 @@ public class Menu {
                 .phone(order.getPhone())
                 .totalPrice(order.getTotalPrice())
                 .isPayed(order.isPayed())
-                .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).toList())
+                .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).sorted(Comparator.comparing(PositionAmountResponse::getInMenuOrder)).toList())
                 .additionalInfo(order.getAdditionalInfo().stream().map(MenuAdditionalInfo::toResponse).toList())
                 .serving(order.needsTax)
                 .taxAmount(order.getTaxPercentage())

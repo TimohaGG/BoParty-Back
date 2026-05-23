@@ -78,6 +78,7 @@ public class PositionAmount {
                 .position(position.toResponseDto())
                 .amount(amount)
                 .title(title)
+                .inMenuOrder(inMenuOrder)
                 .build();
     }
 

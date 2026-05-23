@@ -12,4 +12,5 @@ public class PositionAmountResponse {
     private PositionResponseDto position;
     private long amount;
     private String title;
+    private int inMenuOrder;
 }

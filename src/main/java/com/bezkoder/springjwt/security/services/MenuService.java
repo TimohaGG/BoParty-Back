@@ -96,13 +96,17 @@ public class MenuService {
         }
 
         List<PositionAmount> positionAmounts = new ArrayList<>();
+        int inMenuOrder = 0;
         for (PosAmountRequest pos: order.getPositions()){
             PositionAmount posAmount = new PositionAmount();
             posAmount.setPosition(this.positionsRepos.findById(pos.getPosId()).orElseThrow(()-> new NoContentException("Position Not Found")));
             posAmount.setAmount(pos.getAmount());
             posAmount.setTitle(pos.getTitle());
             posAmount.setInMenuOrder(pos.getInMenuOrder());
+            posAmount.setInMenuOrder(inMenuOrder);
+            inMenuOrder++;
             positionAmounts.add(posAmount);
+
         }
         try{
             Menu tmp =  menuRepos.save(newOrder);
@@ -164,12 +168,14 @@ public class MenuService {
         List<PosAmountRequest> positions = requestedPositions == null ? List.of() : requestedPositions;
         Map<Long, Position> positionsById = loadPositionsById(positions);
 
+        int inMenuOrder = 0;
         for (PosAmountRequest posReq : positions) {
             PositionAmount posAmount = new PositionAmount();
             posAmount.setOrder(order);
             posAmount.setAmount(posReq.getAmount());
             posAmount.setInMenuOrder(posReq.getInMenuOrder());
-
+            posAmount.setInMenuOrder(inMenuOrder);
+            inMenuOrder++;
             if (posReq.getPosId() > 0) {
                 posAmount.setPosition(positionsById.get(posReq.getPosId()));
             }
