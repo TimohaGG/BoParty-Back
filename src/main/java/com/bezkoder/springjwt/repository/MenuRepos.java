@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -54,4 +55,24 @@ select COUNT(o) from Menu o where o.date >=:startDate""")
     @Query("""
 select COUNT(o) from Menu o where o.date <:startDate""")
     Integer findTotalArchiveOrders(@Param("startDate")LocalDateTime startDate);
+
+
+    @Query(
+            """
+select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
+o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o 
+where o.user.id = :userId
+    AND (
+    
+    (:name IS NOT NULL 
+        AND :name <> '' 
+        AND LOWER(o.client) LIKE LOWER(CONCAT('%', :name, '%')))
+        
+    OR
+    
+    (:date IS NOT NULL 
+        AND DATE(o.date) = :date)
+)
+""")
+    List<MenuCardResponse> findAllByClientOrDate(@Param("userId")long userId, @Param("name")String name, @Param("date") LocalDate date);
 }

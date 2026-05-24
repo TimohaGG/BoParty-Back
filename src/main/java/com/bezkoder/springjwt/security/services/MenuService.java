@@ -77,8 +77,10 @@ public class MenuService {
         try{
             newOrder = Menu.builder()
                     .client(order.getClient())
-                    .date(LocalDate.parse(order.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                            .atStartOfDay())
+                    .date(LocalDateTime.parse(
+                            order.getDate(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                    ))
                     .phone(order.getPhoneNumber())
                     .duration(order.getDuration())
                     .guestsAmount(order.getGuestsAmount())
@@ -137,8 +139,10 @@ public class MenuService {
     public Menu editOrder(MenuEditRequest request) {
         Menu order = this.getOrderById(request.getId());
 
-        order.setDate(LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                .atStartOfDay()); // adjust parsing if datetime
+        order.setDate(LocalDateTime.parse(
+                request.getDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        )); // adjust parsing if datetime
         order.setClient(request.getClient());
         order.setGuestsAmount(request.getGuestsAmount());
         order.setDuration(request.getDuration());
@@ -516,6 +520,15 @@ public class MenuService {
         }
 
         throw new NoContentException("Unit not found");
+    }
+
+    public List<MenuCardResponse> searchByNameOrDate(long userId, String name, String date) {
+        LocalDate time = null;
+        if(date!=null && !date.isBlank()){
+            time = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
+        return this.menuRepos.findAllByClientOrDate(userId, name,time);
     }
 
 

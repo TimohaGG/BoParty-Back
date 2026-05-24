@@ -89,6 +89,12 @@ public class MenuController {
         return new ResponseEntity<>(Menu.toDto(res), HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<MenuCardResponse>> getAllBySearch(String name, String date) {
+        List<MenuCardResponse> res = this.menuService.searchByNameOrDate(this.userDetailsService.getCurrentUser().getId(),name,date);
+        return new ResponseEntity<>(res,HttpStatus.OK);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<MenuResponse> create(@RequestBody MenuCreateRequest order) {
         Menu res = this.menuService.createOrder(order);
