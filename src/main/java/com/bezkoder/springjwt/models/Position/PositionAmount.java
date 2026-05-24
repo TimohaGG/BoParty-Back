@@ -35,6 +35,8 @@ public class PositionAmount {
         positionAmount.position = old.position;
         positionAmount.order = order;
         positionAmount.amount = old.amount;
+        positionAmount.title = old.title;
+        positionAmount.inMenuOrder = old.inMenuOrder;
         return positionAmount;
 
     }

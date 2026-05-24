@@ -101,6 +101,12 @@ public class MenuController {
         return ResponseEntity.ok(Menu.toDto(res));
     }
 
+    @PostMapping("/copy/{orderId}")
+    public ResponseEntity<MenuResponse> copy(@PathVariable Long orderId) {
+        Menu res = this.menuService.copyOrder(orderId);
+        return ResponseEntity.ok(Menu.toDto(res));
+    }
+
     @PostMapping("/edit")
     public ResponseEntity<MenuResponse> edit(@RequestBody MenuEditRequest order) {
         Menu res = this.menuService.editOrder(order);

@@ -136,6 +136,45 @@ public class MenuService {
     }
 
     @Transactional
+    public Menu copyOrder(long id) {
+        Menu sourceOrder = this.getOrderById(id);
+
+        Menu copiedOrder = Menu.builder()
+                .client(sourceOrder.getClient())
+                .date(sourceOrder.getDate())
+                .phone(sourceOrder.getPhone())
+                .duration(sourceOrder.getDuration())
+                .guestsAmount(sourceOrder.getGuestsAmount())
+                .format(sourceOrder.getFormat())
+                .user(this.userService.getCurrentUser())
+                .needsTax(sourceOrder.isNeedsTax())
+                .taxPercentage(sourceOrder.getTaxPercentage())
+                .govTax(sourceOrder.isGovTax())
+                .govTaxAmount(sourceOrder.getGovTaxAmount())
+                .temporary(sourceOrder.isTemporary())
+                .build();
+
+        try {
+            Menu savedOrder = this.menuRepos.save(copiedOrder);
+
+            List<PositionAmount> copiedPositions = sourceOrder.getPositionsAmount().stream()
+                    .map(position -> PositionAmount.copyPositionAmount(position, savedOrder))
+                    .toList();
+            savedOrder.setPositionsAmount(new ArrayList<>(copiedPositions));
+
+            List<MenuAdditionalInfo> copiedInfo = sourceOrder.getAdditionalInfo().stream()
+                    .map(info -> MenuAdditionalInfo.copy(info, savedOrder))
+                    .toList();
+            savedOrder.setAdditionalInfo(new ArrayList<>(copiedInfo));
+
+            savedOrder.setTotalPrice(savedOrder.getTotalPrice());
+            return this.menuRepos.save(savedOrder);
+        } catch (Exception e) {
+            throw new OrderCreateException(e.getMessage());
+        }
+    }
+
+    @Transactional
     public Menu editOrder(MenuEditRequest request) {
         Menu order = this.getOrderById(request.getId());
 

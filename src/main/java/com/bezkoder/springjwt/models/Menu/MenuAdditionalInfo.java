@@ -49,4 +49,13 @@ public class MenuAdditionalInfo
                 .build();
     }
 
+    public static MenuAdditionalInfo copy(MenuAdditionalInfo data, Menu order) {
+        return MenuAdditionalInfo.builder()
+                .order(order)
+                .title(data.getTitle())
+                .description(data.getDescription())
+                .price(data.getPrice())
+                .build();
+    }
+
 }
