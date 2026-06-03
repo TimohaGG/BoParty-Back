@@ -87,7 +87,9 @@ public class PositionsService {
             position.setWeight(positionCreateDto.getWeight());
             position.setPrice(positionCreateDto.getPrice());
             position.setCategory(category);
-            position.setImage(image==null ? null : image.getBytes());
+            if(image != null){
+                position.setImage(image.getBytes());
+            }
 
 
             long id = this.positionsRepos.save(position).getId();
