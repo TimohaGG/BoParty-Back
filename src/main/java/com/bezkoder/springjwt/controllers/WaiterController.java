@@ -4,6 +4,7 @@ import com.bezkoder.springjwt.payload.request.Menus.WaiterRequest;
 import com.bezkoder.springjwt.payload.response.Menu.WaiterResponse;
 import com.bezkoder.springjwt.security.services.WaiterService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/waiters")
 public class WaiterController {
     private final WaiterService waiterService;
