@@ -81,6 +81,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
               .requestMatchers("/orders/**").authenticated()
               .requestMatchers("/ingredients/**").authenticated()
               .requestMatchers("/waiters/**").authenticated()
+              .requestMatchers("/expences/**").authenticated()
               .anyRequest().authenticated()
 
         );
