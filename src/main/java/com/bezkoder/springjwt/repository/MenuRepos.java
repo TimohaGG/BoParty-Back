@@ -28,6 +28,16 @@ o.id,o.date,o.client,o.totalPrice,o.temporary
 """)
     List<MinMenuResp> findAllMin();
 
+    @Query("""
+select new com.bezkoder.springjwt.payload.response.Menu.MinMenuResp(
+o.id, o.date, o.client, o.totalPrice, o.temporary
+) from Menu o
+where o.user.id = :userId
+  and o.temporary = false
+order by o.date desc
+""")
+    List<MinMenuResp> findAllMinByUserId(@Param("userId") Long userId);
+
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(

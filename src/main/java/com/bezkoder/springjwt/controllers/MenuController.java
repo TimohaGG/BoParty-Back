@@ -57,6 +57,12 @@ public class MenuController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping("/get/min/current")
+    public ResponseEntity<List<MinMenuResp>> getMinOrders() {
+        List<MinMenuResp> res = this.menuService.getMinOrdersByCurrentUser();
+        return ResponseEntity.ok(res);
+    }
+
     @GetMapping("/amount")
     public ResponseEntity<Integer> getOrdersAmount(boolean archive) {
         return ResponseEntity.ok(this.menuService.getOrdersAmount(archive));

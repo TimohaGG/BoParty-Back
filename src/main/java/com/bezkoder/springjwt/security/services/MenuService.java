@@ -416,6 +416,11 @@ public class MenuService {
         return this.menuRepos.findAllMin();
     }
 
+    public List<MinMenuResp> getMinOrdersByCurrentUser() {
+        Long userId = this.userService.getCurrentUser().getId();
+        return this.menuRepos.findAllMinByUserId(userId);
+    }
+
     public MinMenuResp joinOrders(Long[] ordersIds) {
         List<Menu> menuList = this.menuRepos.findAllById(Arrays.stream(ordersIds).toList());
         if(menuList.isEmpty())
