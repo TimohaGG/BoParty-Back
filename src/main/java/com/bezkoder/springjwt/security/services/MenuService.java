@@ -9,9 +9,7 @@ import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.Position.Units;
 import com.bezkoder.springjwt.payload.request.Menus.*;
 import com.bezkoder.springjwt.payload.request.Position.PosAmountRequest;
-import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
-import com.bezkoder.springjwt.payload.response.Menu.MinMenuResp;
-import com.bezkoder.springjwt.payload.response.Menu.ShoppingListItemResp;
+import com.bezkoder.springjwt.payload.response.Menu.*;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -573,6 +572,27 @@ public class MenuService {
         }
 
         return this.menuRepos.findAllByClientOrDate(userId, name,time);
+    }
+
+    public List<ShoppingListRespMin> getAllShoppingsMin() {
+
+        long userId = this.userService.getCurrentUser().getId();
+        YearMonth currentMonth = YearMonth.now();
+
+        LocalDateTime startOfMonth = currentMonth
+                .atDay(1)
+                .atStartOfDay();
+
+        LocalDateTime startOfNextMonth = currentMonth
+                .plusMonths(1)
+                .atDay(1)
+                .atStartOfDay();
+
+        List<ShoppingListRespMin> res = this.iShoppingListRepos.findAllByUserIdAndCurrentMonth(userId,startOfMonth,startOfNextMonth).stream().map(ShoppingList::toMinRespDto).toList();
+        if(res.isEmpty()){
+            throw new NoContentException("Shopping lists not found");
+        }
+        return res;
     }
 
 

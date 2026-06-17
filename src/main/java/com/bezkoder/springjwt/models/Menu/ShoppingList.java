@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.models.Menu;
 
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.payload.response.Menu.ShoppingListResp;
+import com.bezkoder.springjwt.payload.response.Menu.ShoppingListRespMin;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,6 +79,15 @@ public class ShoppingList {
                 .needsUpdate(item.isNeedsUpdate())
                 .items(item.items.stream().map(ShoppingListItem::toRespDto).toList())
                 .positions(item.order.getPositionsAmount().stream().map(PositionAmount::toDto).collect(Collectors.toList()))
+                .build();
+    }
+
+    public static ShoppingListRespMin toMinRespDto(ShoppingList item){
+        return ShoppingListRespMin.builder()
+                .id(item.getId())
+                .date(item.order.getDate())
+                .client(item.order.getClient())
+                .orderId(item.order.getId())
                 .build();
     }
 

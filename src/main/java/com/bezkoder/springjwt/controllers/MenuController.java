@@ -154,6 +154,11 @@ public class MenuController {
         return ResponseEntity.ok(res.toResponse());
     }
 
+    @GetMapping("/shopping/min")
+    public ResponseEntity<List<ShoppingListRespMin>> getShoppingListsMin(){
+        return ResponseEntity.ok(this.menuService.getAllShoppingsMin());
+    }
+
     @GetMapping("/shopping/get/{orderId}")
     public ResponseEntity<ShoppingListResp> getShoppingList(@PathVariable long orderId){
         ShoppingList list = this.menuService.getShopping(orderId);
