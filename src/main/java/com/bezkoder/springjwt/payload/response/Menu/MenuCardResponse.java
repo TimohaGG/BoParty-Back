@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MenuCardResponse {
     private long id;
-    @JsonFormat(pattern = "dd.MM.yyyy hh:mm")
+    @JsonFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime date;
     private double totalPrice;
     private String client;
