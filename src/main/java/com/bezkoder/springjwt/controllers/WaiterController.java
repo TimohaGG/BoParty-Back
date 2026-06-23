@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Controller
-@RequestMapping("/waiters")
+@RequestMapping("/api/waiters")
 public class WaiterController {
     private final WaiterService waiterService;
 

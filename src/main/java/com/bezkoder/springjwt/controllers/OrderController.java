@@ -20,13 +20,13 @@ public class OrderController {
         this.orderService = orderService;
 
     }
-    @PostMapping("/orderdatas/create")
+    @PostMapping("/api/orderdatas/create")
     public String createOrder(OrderCreateReq orderCreateReq){
         this.orderService.addOrder(orderCreateReq);
         return "redirect:/orderdatas";
     }
 
-    @GetMapping("/orderdatas")
+    @GetMapping("/api/orderdatas")
     public List<OrderResp> getOrders(Model model){
         return this.orderService.getALl();
     }

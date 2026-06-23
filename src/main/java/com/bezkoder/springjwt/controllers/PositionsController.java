@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Controller
-@RequestMapping("/positions")
+@RequestMapping("/api/positions")
 public class PositionsController {
 
     private final PositionsService positionsService;

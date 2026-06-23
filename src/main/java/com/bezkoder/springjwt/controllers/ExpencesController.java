@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/expences")
+@RequestMapping("/api/expences")
 public class ExpencesController {
 
     private final ExpencesService expencesService;
