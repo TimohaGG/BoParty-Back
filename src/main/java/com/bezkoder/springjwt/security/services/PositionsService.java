@@ -86,7 +86,9 @@ public class PositionsService {
             position.setName(positionCreateDto.getName());
             position.setWeight(positionCreateDto.getWeight());
             position.setPrice(positionCreateDto.getPrice());
+            position.setMinimumAmount(positionCreateDto.getMinimumAmount() == null ? 10 : positionCreateDto.getMinimumAmount());
             position.setCategory(category);
+            position.setAccessible(positionCreateDto.getIsAccessible() == null ? true : positionCreateDto.getIsAccessible());
             if(image != null){
                 position.setImage(image.getBytes());
             }

@@ -28,4 +28,5 @@ public class MenuEditRequest {
     private boolean govTax;
     private int govTaxAmount;
 
+
 }

@@ -105,6 +105,7 @@ public class Menu {
     private double govTaxAmount;
 
 
+
     public String getDateFormatted() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         if(date!=null){
@@ -221,6 +222,7 @@ public class Menu {
                 .totalPrice(order.getTotalPrice())
                 .client(order.getClient())
                 .isPayed(order.isPayed())
+                .temporary(order.isTemporary())
                 .build();
     }
 

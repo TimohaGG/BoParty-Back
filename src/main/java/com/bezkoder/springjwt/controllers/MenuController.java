@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping("/api/orders")
+@RequestMapping("/api/menus")
 public class MenuController {
 
     private final MenuService menuService;

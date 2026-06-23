@@ -26,7 +26,6 @@ public class PositionsCategoriesController {
     public ResponseEntity<List<CategoryResponseDto>> getAllCategories(@PathVariable long userId){
         try{
             return ResponseEntity.ok(categoriesService.getAll(userId));
-
         }catch(Exception e){
             throw new NoContentException("There are no categories");
         }

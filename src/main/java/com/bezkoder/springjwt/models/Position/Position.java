@@ -1,9 +1,11 @@
 package com.bezkoder.springjwt.models.Position;
 
+import com.bezkoder.springjwt.payload.response.Positions.PositionMinDto;
 import com.bezkoder.springjwt.payload.response.Positions.PositionResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -27,6 +29,14 @@ public class Position {
     private double weight;
     @Column(nullable = false)
     private double price;
+
+    @Builder.Default
+    @ColumnDefault("10")
+    private int minimumAmount = 10;
+
+    @Builder.Default
+    @ColumnDefault("true")
+    private boolean isAccessible = true;
 
 
     @Lob
@@ -79,9 +89,24 @@ public class Position {
                 .name(name)
                 .weight(weight)
                 .price(price)
+                .minimumAmount(minimumAmount)
                 .image(image==null ? "": Base64.getEncoder().encodeToString(image))
+                .isAccessible(isAccessible)
                 .category(category.toResponseDto())
                 .ingredients(ingredients.stream().map(ing->ing.toDTO()).toList())
+                .build();
+    }
+
+    public PositionMinDto toMinDto() {
+        return PositionMinDto.builder()
+                .id(id)
+                .name(name)
+                .weight(weight)
+                .price(price)
+                .minimumAmount(minimumAmount)
+                .image(image==null ? "": Base64.getEncoder().encodeToString(image))
+                .isAccessible(isAccessible)
+                .category(category.toResponseDto())
                 .build();
     }
 }

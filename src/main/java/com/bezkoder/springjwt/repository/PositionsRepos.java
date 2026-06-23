@@ -1,6 +1,7 @@
 package com.bezkoder.springjwt.repository;
 
 import com.bezkoder.springjwt.models.Position.Position;
+import com.bezkoder.springjwt.payload.response.Positions.PositionResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,8 @@ public interface PositionsRepos extends JpaRepository<Position,Long> {
     List<Position> findAllByCategoryUserId(Long categoryId);
 
 
+    @Query("""
+    SELECT p FROM Position p WHERE p.isAccessible AND p.category.id=:categoryId
+""")
+    List<Position> findAccessibleByCategoryId(@Param("categoryId")Long categoryId);
 }
