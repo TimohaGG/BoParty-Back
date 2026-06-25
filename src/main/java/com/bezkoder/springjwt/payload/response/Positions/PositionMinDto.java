@@ -1,16 +1,14 @@
 package com.bezkoder.springjwt.payload.response.Positions;
 
 import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
 public class PositionMinDto {
     private Long id;
     private String name;

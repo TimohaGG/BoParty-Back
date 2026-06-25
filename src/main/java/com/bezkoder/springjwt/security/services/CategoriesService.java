@@ -23,6 +23,8 @@ public class CategoriesService {
     }
 
     public List<CategoryResponseDto> getAll(long userId){
+
+
         List<CategoryResponseDto> res = this.categoriesRepos.findAllByUserId(userId).stream().map(Category::toResponseDto).toList();
         if(res.isEmpty()){
             throw new NoContentException("There are no categories");

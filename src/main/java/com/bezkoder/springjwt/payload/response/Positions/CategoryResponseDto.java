@@ -4,9 +4,10 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+
 public class CategoryResponseDto {
     private Long id;
     private String name;

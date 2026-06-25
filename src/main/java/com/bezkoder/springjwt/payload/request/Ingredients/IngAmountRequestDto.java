@@ -4,9 +4,9 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class IngAmountRequestDto {
     private long id;
     private IngRequestDto ingredient;
