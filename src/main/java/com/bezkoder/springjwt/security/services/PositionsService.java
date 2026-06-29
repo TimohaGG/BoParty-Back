@@ -84,6 +84,7 @@ public class PositionsService {
 
             Category category = this.categoriesRepos.findById(positionCreateDto.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             position.setName(positionCreateDto.getName());
+            position.setDescription(positionCreateDto.getDescription());
             position.setWeight(positionCreateDto.getWeight());
             position.setPrice(positionCreateDto.getPrice());
             position.setMinimumAmount(positionCreateDto.getMinimumAmount() == null ? 10 : positionCreateDto.getMinimumAmount());

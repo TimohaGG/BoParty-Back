@@ -35,6 +35,7 @@ public class Category {
                 .id(id)
                 .name(name)
                 .userId(user.getId())
+                .sortingOrder(sortingOrder)
                 .build();
     }
 }

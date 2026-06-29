@@ -12,4 +12,5 @@ public class CategoryResponseDto {
     private Long id;
     private String name;
     private long userId;
+    private int sortingOrder;
 }

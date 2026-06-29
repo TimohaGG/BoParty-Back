@@ -13,6 +13,7 @@ import lombok.Setter;
 public class PositionCreateDto {
     private long id;
     private String name;
+    private String description;
     private int weight;
     private int price;
     private Integer minimumAmount = 10;
@@ -22,9 +23,4 @@ public class PositionCreateDto {
     private Boolean isAccessible = true;
 
     private IngAmountRequestDto[] ingredients;
-
-//    private byte[] image;
-
-
-
 }

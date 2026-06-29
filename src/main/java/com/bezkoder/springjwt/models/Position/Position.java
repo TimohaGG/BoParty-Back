@@ -25,6 +25,10 @@ public class Position {
     private Long id;
     @Column(nullable = false)
     private String name;
+
+    @Column(length = 2000)
+    private String description;
+
     @Column(nullable = false)
     private double weight;
     @Column(nullable = false)
@@ -55,8 +59,9 @@ public class Position {
     private List<IngredientAmount> ingredients = new  ArrayList<>();
 
 
-    public Position(String name, Double weight, double price, MultipartFile multipartFile, Category category, List<IngredientAmount> ingredients) {
+    public Position(String name, String description, Double weight, double price, MultipartFile multipartFile, Category category, List<IngredientAmount> ingredients) {
         this.name = name;
+        this.description = description;
         this.weight = weight;
         this.price = price;
         this.multipartFile = multipartFile;
@@ -87,6 +92,7 @@ public class Position {
         return PositionResponseDto.builder()
                 .id(id)
                 .name(name)
+                .description(description)
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
@@ -101,6 +107,7 @@ public class Position {
         return PositionMinDto.builder()
                 .id(id)
                 .name(name)
+                .description(description)
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
