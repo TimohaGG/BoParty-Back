@@ -19,5 +19,5 @@ public class PositionMinDto {
     private String image;
     private boolean isAccessible;
     private CategoryResponseDto category;
-    private List<IngAmountRequestDto> ingredients;
+//    private List<IngAmountRequestDto> ingredients;
 }

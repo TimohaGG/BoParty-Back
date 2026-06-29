@@ -3,6 +3,7 @@ package com.bezkoder.springjwt.security.services;
 import com.bezkoder.springjwt.models.Position.*;
 import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
 import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
+import com.bezkoder.springjwt.payload.response.Positions.PositionMinDto;
 import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.CategoryNotFoundException;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
@@ -52,7 +53,7 @@ public class PositionsService {
 
         return res;
     }
-    public List<Position> getAllPositionsByCategoryId(Long categoryId) {
+    public List<PositionMinDto> getAllPositionsByCategoryId(Long categoryId) {
         List<Position> res;
         if(categoryId == 0){
             if(this.categoriesRepos.findAll().isEmpty()){
@@ -64,7 +65,7 @@ public class PositionsService {
         if(res.isEmpty()){
             throw new NoContentException("No positions found");
         }
-        return res;
+        return res.stream().map(Position::toMinDto).toList();
     }
 
     public Position getPositionById(Long id){

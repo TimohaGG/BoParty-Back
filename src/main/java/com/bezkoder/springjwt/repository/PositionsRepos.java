@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PositionsRepos extends JpaRepository<Position,Long> {
-    List<Position> findAllByCategoryId(Long categoryId);
+
+    @Query("SELECT p from Position p WHERE p.category.id= :categoryId")
+    List<Position> findAllByCategoryId(@Param("categoryId")Long categoryId);
 
     List<Position> findAllByNameContainsIgnoreCase(String name);
 

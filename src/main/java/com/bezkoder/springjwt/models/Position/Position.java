@@ -42,7 +42,6 @@ public class Position {
     @ColumnDefault("true")
     private boolean isAccessible = true;
 
-
     @Lob
     @Column(name = "image", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] image;
@@ -56,8 +55,7 @@ public class Position {
 
     @JsonIgnore
     @OneToMany(mappedBy = "position", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<IngredientAmount> ingredients = new  ArrayList<>();
-
+    private List<IngredientAmount> ingredients = new ArrayList<>();
 
     public Position(String name, String description, Double weight, double price, MultipartFile multipartFile, Category category, List<IngredientAmount> ingredients) {
         this.name = name;
@@ -70,7 +68,7 @@ public class Position {
     }
 
     public String getImageBase64() {
-        if(image == null) {
+        if (image == null) {
             return "";
         }
         return Base64.getEncoder().encodeToString(image);
@@ -82,7 +80,7 @@ public class Position {
     }
 
     public void addIngredientAmount(IngredientAmount ingredientAmount) {
-        if(this.ingredients == null) {
+        if (this.ingredients == null) {
             this.ingredients = new ArrayList<>();
         }
         this.ingredients.add(ingredientAmount);
@@ -96,10 +94,10 @@ public class Position {
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
-                .image(image==null ? "": Base64.getEncoder().encodeToString(image))
+                .image(image == null ? "" : Base64.getEncoder().encodeToString(image))
                 .isAccessible(isAccessible)
                 .category(category.toResponseDto())
-                .ingredients(ingredients.stream().map(ing->ing.toDTO()).toList())
+                .ingredients(ingredients.stream().map(IngredientAmount::toDTO).toList())
                 .build();
     }
 
@@ -111,7 +109,7 @@ public class Position {
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
-                .image(image==null ? "": Base64.getEncoder().encodeToString(image))
+                .image(image == null ? "" : Base64.getEncoder().encodeToString(image))
                 .isAccessible(isAccessible)
                 .category(category.toResponseDto())
                 .build();
