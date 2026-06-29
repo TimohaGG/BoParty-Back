@@ -6,10 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Entity
@@ -18,11 +16,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
 
@@ -31,6 +29,7 @@ public class Position {
 
     @Column(nullable = false)
     private double weight;
+
     @Column(nullable = false)
     private double price;
 
@@ -42,13 +41,8 @@ public class Position {
     @ColumnDefault("true")
     private boolean isAccessible = true;
 
-    @Lob
-    @Column(name = "image", columnDefinition = "LONGBLOB", nullable = true)
-    private byte[] image;
-
-    @JsonIgnore
-    @Transient
-    private MultipartFile multipartFile;
+    @Column(nullable = true, length = 2000)
+    private String imgUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
@@ -57,21 +51,13 @@ public class Position {
     @OneToMany(mappedBy = "position", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IngredientAmount> ingredients = new ArrayList<>();
 
-    public Position(String name, String description, Double weight, double price, MultipartFile multipartFile, Category category, List<IngredientAmount> ingredients) {
+    public Position(String name, String description, Double weight, double price, Category category, List<IngredientAmount> ingredients) {
         this.name = name;
         this.description = description;
         this.weight = weight;
         this.price = price;
-        this.multipartFile = multipartFile;
         this.category = category;
         this.ingredients = ingredients;
-    }
-
-    public String getImageBase64() {
-        if (image == null) {
-            return "";
-        }
-        return Base64.getEncoder().encodeToString(image);
     }
 
     public void setIngredients(List<IngredientAmount> ingredients) {
@@ -94,7 +80,7 @@ public class Position {
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
-                .image(image == null ? "" : Base64.getEncoder().encodeToString(image))
+                .imgUrl(imgUrl)
                 .isAccessible(isAccessible)
                 .category(category.toResponseDto())
                 .ingredients(ingredients.stream().map(IngredientAmount::toDTO).toList())
@@ -109,7 +95,7 @@ public class Position {
                 .weight(weight)
                 .price(price)
                 .minimumAmount(minimumAmount)
-                .image(image == null ? "" : Base64.getEncoder().encodeToString(image))
+                .imgUrl(imgUrl)
                 .isAccessible(isAccessible)
                 .category(category.toResponseDto())
                 .build();

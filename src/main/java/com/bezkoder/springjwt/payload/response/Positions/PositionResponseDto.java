@@ -19,7 +19,7 @@ public class PositionResponseDto {
     private double weight;
     private double price;
     private int minimumAmount;
-    private String image;
+    private String imgUrl;
     private boolean isAccessible;
     private CategoryResponseDto category;
     private List<IngAmountRequestDto> ingredients;

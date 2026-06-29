@@ -291,9 +291,9 @@ public class Menu {
                 table.addCell(cell);
             }
             table.addCell(pdfConfig.defaultCell(pos.getPosName()));
-            if(pos.getPosition().getImage() != null){
+            if(pos.getPosition().getImgUrl() != null && !pos.getPosition().getImgUrl().isBlank()){
                 try {
-                    Image img = Image.getInstance(pos.getPosition().getImage());
+                    Image img = Image.getInstance(pos.getPosition().getImgUrl());
                     img.scaleToFit(50,50);
                     table.addCell(pdfConfig.getImageCell(img));
                 } catch (BadElementException | IOException e) {

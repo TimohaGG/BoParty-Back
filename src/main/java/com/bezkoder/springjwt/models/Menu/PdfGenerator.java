@@ -171,7 +171,7 @@ public class PdfGenerator {
             table.addCell(getDefaultCell(pos.getPosName(), mainFont));
 
             try{
-                Image img = Image.getInstance(pos.getPosition().getImage());
+                Image img = Image.getInstance(pos.getPosition().getImgUrl());
                 img.scaleToFit(50,50);
                 PdfPCell cell = new PdfPCell(img);
                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);

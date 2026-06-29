@@ -17,10 +17,8 @@ public class PositionCreateDto {
     private int weight;
     private int price;
     private Integer minimumAmount = 10;
-
+    private String imgUrl;
     private long categoryId;
-
     private Boolean isAccessible = true;
-
     private IngAmountRequestDto[] ingredients;
 }

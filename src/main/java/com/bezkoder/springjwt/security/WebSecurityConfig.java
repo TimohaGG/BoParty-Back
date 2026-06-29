@@ -80,6 +80,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
               .requestMatchers("/api/orders/positions/**").permitAll()
               .requestMatchers("/api/positions/categories/**").permitAll()
               .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+              .requestMatchers("/api/positions/migrate/images-to-blob").permitAll()
               .requestMatchers("/orders/**").authenticated()
               .requestMatchers("/ingredients/**").authenticated()
               .requestMatchers("/waiters/**").authenticated()
