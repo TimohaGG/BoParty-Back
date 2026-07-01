@@ -69,7 +69,7 @@ public class PositionsController {
 
     @PostMapping("/accessibility")
     public ResponseEntity<PositionResponseDto> updatePositionAccessibility(@RequestBody PositionAccessibilityRequestDto request) {
-        Position res = this.positionsService.updateAccessibility(request.getId(), request.getAccessible());
+        Position res = this.positionsService.updateAccessibility(request.getId(), request.isAccessible());
         return ResponseEntity.ok(res.toResponseDto());
     }
 
