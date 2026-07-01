@@ -39,7 +39,8 @@ public class Position {
 
     @Builder.Default
     @ColumnDefault("true")
-    private boolean isAccessible = true;
+    @Column(name = "is_accessible", nullable = false)
+    private Boolean accessible = true;
 
     @Column(nullable = true, length = 2000)
     private String imgUrl;
@@ -81,7 +82,7 @@ public class Position {
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
-                .isAccessible(isAccessible)
+                .accessible(accessible)
                 .category(category.toResponseDto())
                 .ingredients(ingredients.stream().map(IngredientAmount::toDTO).toList())
                 .build();
@@ -96,7 +97,7 @@ public class Position {
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
-                .isAccessible(isAccessible)
+                .accessible(accessible)
                 .category(category.toResponseDto())
                 .build();
     }

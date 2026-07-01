@@ -15,6 +15,6 @@ public class PositionMinDto {
     private double price;
     private int minimumAmount;
     private String imgUrl;
-    private boolean isAccessible;
+    private Boolean accessible;
     private CategoryResponseDto category;
 }

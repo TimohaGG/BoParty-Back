@@ -3,6 +3,7 @@ package com.bezkoder.springjwt.controllers;
 import ch.qos.logback.core.model.Model;
 import com.bezkoder.springjwt.models.Position.Position;
 import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.payload.request.Position.PositionAccessibilityRequestDto;
 import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
 import com.bezkoder.springjwt.payload.response.Positions.PositionMinDto;
 import com.bezkoder.springjwt.payload.response.Positions.PositionResponseDto;
@@ -64,6 +65,12 @@ public class PositionsController {
         } catch (JsonProcessingException e) {
             throw new PositionCreateException("Cannot parse position");
         }
+    }
+
+    @PostMapping("/accessibility")
+    public ResponseEntity<PositionResponseDto> updatePositionAccessibility(@RequestBody PositionAccessibilityRequestDto request) {
+        Position res = this.positionsService.updateAccessibility(request.getId(), request.getAccessible());
+        return ResponseEntity.ok(res.toResponseDto());
     }
 
     @DeleteMapping("/remove")

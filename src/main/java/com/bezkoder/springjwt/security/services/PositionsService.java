@@ -112,7 +112,7 @@ public class PositionsService {
             position.setPrice(positionCreateDto.getPrice());
             position.setMinimumAmount(positionCreateDto.getMinimumAmount() == null ? 10 : positionCreateDto.getMinimumAmount());
             position.setCategory(category);
-            position.setAccessible(positionCreateDto.getIsAccessible() == null ? true : positionCreateDto.getIsAccessible());
+            position.setAccessible(positionCreateDto.getAccessible() == null ? true : positionCreateDto.getAccessible());
 
             if(image != null && !image.isEmpty()){
                 position.setImgUrl(uploadImage(image));
@@ -140,6 +140,12 @@ public class PositionsService {
         } catch (Exception e){
             throw new PositionCreateException("Cannot save position");
         }
+    }
+
+    public Position updateAccessibility(Long id, boolean accessible) {
+        Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        position.setAccessible(accessible);
+        return this.positionsRepos.save(position);
     }
 
     public Long removePosition(Long id) {

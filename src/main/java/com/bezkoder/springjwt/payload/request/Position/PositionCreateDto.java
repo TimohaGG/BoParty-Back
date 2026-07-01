@@ -19,6 +19,6 @@ public class PositionCreateDto {
     private Integer minimumAmount = 10;
     private String imgUrl;
     private long categoryId;
-    private Boolean isAccessible = true;
+    private Boolean accessible = true;
     private IngAmountRequestDto[] ingredients;
 }
