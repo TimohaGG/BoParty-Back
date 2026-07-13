@@ -19,13 +19,14 @@ public class MenuCreateRequest {
     private String duration;
     private String format;
     private String phoneNumber;
+    private String deliveryType;
+    private String deliveryAddress;
+    private String orderType;
+    private boolean needsWaiter;
     private List<PosAmountRequest> positions;
     private List<MenuInfoRequest> additionalInfo;
     private boolean serving;
     private double taxAmount;
-
     private boolean govTax;
     private int govTaxAmount;
-
-
 }

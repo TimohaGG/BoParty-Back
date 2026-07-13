@@ -52,6 +52,10 @@ public class Menu {
         duration = "";
         format = "Бокси";
         phone = "0688714410";
+        deliveryType = "самовивіз";
+        deliveryAddress = "";
+        orderType = "бокси";
+        needsWaiter = false;
         id = 0L;
         positionsAmount = new ArrayList<>();
         isPayed = false;
@@ -59,7 +63,6 @@ public class Menu {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime date;
-
 
     @Column(nullable = true)
     private String client;
@@ -71,15 +74,19 @@ public class Menu {
     private String format;
     @ColumnDefault("0688714410")
     private String phone;
+    @Column(nullable = true)
+    private String deliveryType;
+    @Column(nullable = true, length = 2000)
+    private String deliveryAddress;
+    @Column(nullable = true)
+    private String orderType;
+    @ColumnDefault("false")
+    private boolean needsWaiter;
     private double totalPrice;
 
     private int sortingOrder = 0;
-
     private boolean needsTax = false;
-
     private double taxPercentage = 10;
-
-
 
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
     private List<PositionAmount> positionsAmount = new ArrayList<>();
@@ -87,7 +94,6 @@ public class Menu {
     @JsonIgnore
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
     private List<MenuAdditionalInfo> additionalInfo = new  ArrayList<>();
-
 
     @Getter
     @ManyToOne(fetch = FetchType.EAGER)
@@ -104,8 +110,6 @@ public class Menu {
     private boolean govTax;
     private double govTaxAmount;
 
-
-
     public String getDateFormatted() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         if(date!=null){
@@ -114,33 +118,22 @@ public class Menu {
         else{
             return "";
         }
-
     }
 
     public int getPrice(){
-
         return positionsAmount.stream()
                 .mapToInt(x -> (int)x.getPosition().getPrice() * x.getAmount())
                 .sum();
     }
 
-    //returns menu price
     public int getTotalPrice(){
-        //only positions
         double menuPrice = getPrice();
-        //adding serving
         if(needsTax){
             menuPrice =  menuPrice * (1 + taxPercentage / 100);
         }
-        //adding additional servings
-
         menuPrice+=getAdditionalInfoPrice();
-
-        //adding gov tax
         if(govTax)
             menuPrice = menuPrice / ((100-govTaxAmount) * 0.01);
-
-
         return (int)Math.round(menuPrice);
     }
 
@@ -152,18 +145,11 @@ public class Menu {
 
     public int getGovTaxPrice(){
         double menuPrice = getPrice();
-        //adding serving
         if(needsTax){
             menuPrice =  menuPrice * (1 + taxPercentage / 100);
         }
-        //adding additional servings
-
         menuPrice+=getAdditionalInfoPrice();
-
-        //adding gov tax
         double withGovTax = menuPrice / ((100-govTaxAmount) * 0.01);
-
-
         return (int)Math.round((withGovTax - menuPrice));
     }
 
@@ -174,29 +160,14 @@ public class Menu {
             return 0;
     }
 
-//    public int getPriceWithServing(){
-//        int sum = getPrice() + ;
-//        if(needsTax){
-//            sum += (int) getTaxPercentageCalc();
-//        }
-//        return sum;
-//    }
-
     public double getTaxPercentageCalc() {
-
         double totalPrice = getPrice();
         return Math.floor(totalPrice * (1 + taxPercentage/100) - totalPrice) ;
     }
-//    public double getGovTaxPercentageCalc() {
-//        double totalPrice = getPriceWithServing();
-//        return Math.floor(totalPrice * (1 + govTaxAmount/100) - totalPrice) ;
-//    }
-
 
     public List<PositionAmount> getPositionsAmount() {
         return positionsAmount.stream().sorted(Comparator.comparing(x->x.getPosition().getCategory().getId())).toList();
     }
-
 
     public void addPosition(PositionAmount position) {
         positionsAmount.add(position);
@@ -208,7 +179,6 @@ public class Menu {
         }
         return (int)getPrice() / guestsAmount;
     }
-
 
     public void removePosition(PositionAmount positionAmount) {
         this.positionsAmount.remove(positionAmount);
@@ -236,6 +206,10 @@ public class Menu {
                 .duration(order.getDuration())
                 .format(order.getFormat())
                 .phone(order.getPhone())
+                .deliveryType(order.getDeliveryType())
+                .deliveryAddress(order.getDeliveryAddress())
+                .orderType(order.getOrderType())
+                .needsWaiter(order.isNeedsWaiter())
                 .totalPrice(order.getTotalPrice())
                 .isPayed(order.isPayed())
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).sorted(Comparator.comparing(PositionAmountResponse::getInMenuOrder)).toList())
@@ -264,18 +238,12 @@ public class Menu {
             document.add(this.generateHeaderPdf(pdfConfig));
             document.add(this.generatePositionsPdf(pdfConfig));
             document.add(this.generateSummaryPdf(pdfConfig));
-
             document.close();
             return out;
-
         }catch (Exception e) {
             throw new PdfGenerateException("Can't generate PDF!");
         }
     }
-
-
-
-
 
     private Element generatePositionsPdf(PdfConfig pdfConfig) {
         float[] cols = {3f, 3f,1f,1f,1f};
@@ -307,7 +275,6 @@ public class Menu {
             table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getWeight())));
             table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
             table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getPrice())));
-
         });
         return table;
     }
@@ -454,11 +421,10 @@ public class Menu {
 
     public MinMenuResp toMinResp(){
         return MinMenuResp.builder()
-                .id(this.getId())
-                .client(this.getClient())
-                .date(this.getDate())
-                .totalPrice(this.getTotalPrice())
-                .temporary(this.isTemporary())
+                .id(this.id)
+                .client(this.client)
+                .date(this.date)
+                .temporary(this.temporary)
                 .build();
     }
 }

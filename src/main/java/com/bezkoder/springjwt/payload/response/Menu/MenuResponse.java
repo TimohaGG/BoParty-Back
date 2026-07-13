@@ -19,18 +19,16 @@ public class MenuResponse {
     private String duration;
     private String format;
     private String phone;
+    private String deliveryType;
+    private String deliveryAddress;
+    private String orderType;
+    private boolean needsWaiter;
     private boolean isPayed;
-
     private double totalPrice;
-
     private List<PositionAmountResponse> positions;
-
     private List<MenuInfoResponse> additionalInfo;
-
     private boolean serving;
     private double taxAmount;
-
     private boolean govTax;
     private double govTaxAmount;
-
 }

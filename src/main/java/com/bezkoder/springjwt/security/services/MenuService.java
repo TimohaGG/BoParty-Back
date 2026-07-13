@@ -84,6 +84,10 @@ public class MenuService {
                     .duration(order.getDuration())
                     .guestsAmount(order.getGuestsAmount())
                     .format(order.getFormat())
+                    .deliveryType(order.getDeliveryType())
+                    .deliveryAddress(order.getDeliveryAddress())
+                    .orderType(order.getOrderType())
+                    .needsWaiter(order.isNeedsWaiter())
                     .user(this.userService.getCurrentUser())
                     .needsTax(order.isServing())
                     .taxPercentage(order.getTaxAmount())
@@ -145,6 +149,10 @@ public class MenuService {
                 .duration(sourceOrder.getDuration())
                 .guestsAmount(sourceOrder.getGuestsAmount())
                 .format(sourceOrder.getFormat())
+                .deliveryType(sourceOrder.getDeliveryType())
+                .deliveryAddress(sourceOrder.getDeliveryAddress())
+                .orderType(sourceOrder.getOrderType())
+                .needsWaiter(sourceOrder.isNeedsWaiter())
                 .user(this.userService.getCurrentUser())
                 .needsTax(sourceOrder.isNeedsTax())
                 .taxPercentage(sourceOrder.getTaxPercentage())
@@ -186,6 +194,10 @@ public class MenuService {
         order.setDuration(request.getDuration());
         order.setFormat(request.getFormat());
         order.setPhone(request.getPhoneNumber());
+        order.setDeliveryType(request.getDeliveryType());
+        order.setDeliveryAddress(request.getDeliveryAddress());
+        order.setOrderType(request.getOrderType());
+        order.setNeedsWaiter(request.isNeedsWaiter());
         order.setNeedsTax(request.isServing());
         order.setTaxPercentage(request.getTaxAmount());
         order.setGovTax(request.isGovTax());
