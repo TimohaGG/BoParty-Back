@@ -181,6 +181,21 @@ public class MenuController {
 
     }
 
+    @GetMapping("/generate/shopping/{id}")
+    public ResponseEntity<byte[]> generateShopping(@PathVariable Long id) {
+        ByteArrayOutputStream out = this.menuService.generateShoppingListPdf(id);
+        byte[] pdfBytes = out.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("Shopping-list")
+                .build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
+
     @PostMapping("/shopping/toggle")
     public ResponseEntity<Boolean> toggleStatus(@RequestBody ToggleStatusReq req) {
         return ResponseEntity.ok(this.menuService.toggleShoppingStatus(req));

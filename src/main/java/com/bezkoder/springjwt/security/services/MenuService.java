@@ -308,6 +308,11 @@ public class MenuService {
 
     }
 
+    public ByteArrayOutputStream generateShoppingListPdf(Long id) {
+        Menu order = this.getOrderById(id);
+        return order.toShoppingListPdf(pdfConfig);
+    }
+
     public void toggleStatus(ToggleStatusReq req) {
         Menu order = this.getOrderById(req.getId());
         order.setPayed(req.isStatus());

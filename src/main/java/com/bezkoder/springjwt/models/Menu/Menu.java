@@ -1,6 +1,7 @@
 package com.bezkoder.springjwt.models.Menu;
 
 import com.bezkoder.springjwt.models.PdfConfig;
+import com.bezkoder.springjwt.models.Position.IngredientAmount;
 import com.bezkoder.springjwt.models.Position.PositionAmount;
 import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse;
@@ -245,6 +246,55 @@ public class Menu {
         }
     }
 
+    public ByteArrayOutputStream toShoppingListPdf(PdfConfig pdfConfig) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, out);
+            document.open();
+            document.add(this.generateHeaderPdf(pdfConfig));
+            document.add(this.generateShoppingPositionsPdf(pdfConfig));
+            document.add(this.generateSummaryPdf(pdfConfig));
+            document.close();
+            return out;
+        } catch (Exception e) {
+            throw new PdfGenerateException("Can't generate shopping list PDF!");
+        }
+    }
+
+    private Element generateShoppingPositionsPdf(PdfConfig pdfConfig) {
+        float[] cols = {3f, 3f, 1f, 1f, 1f};
+        PdfPTable table = new PdfPTable(cols);
+        table.setWidthPercentage(100);
+        table.addCell(this.generatePositionsHeader(pdfConfig));
+        this.generateShoppingPositionsHeaderDescription(pdfConfig, table);
+
+        List<PositionAmount> sortedPositions = new ArrayList<>(this.positionsAmount);
+        sortedPositions.sort(Comparator.comparingInt(PositionAmount::getInMenuOrder));
+
+        sortedPositions.forEach(pos -> {
+            if (pos.getTitle() != null && !pos.getTitle().isBlank()) {
+                PdfPCell cell = pdfConfig.defaultCell(pos.getTitle());
+                cell.setColspan(5);
+                table.addCell(cell);
+            }
+
+            table.addCell(pdfConfig.defaultCell(pos.getPosName()));
+            table.addCell(pdfConfig.smallCell(buildShoppingIngredientsText(pos)));
+            table.addCell(pdfConfig.defaultCell(Integer.toString((int) pos.getPosition().getWeight())));
+            table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
+            table.addCell(pdfConfig.defaultCell(Integer.toString((int) pos.getPosition().getPrice())));
+        });
+
+        return table;
+    }
+
+    private String formatPdfAmount(double amount) {
+        if (Math.abs(amount - Math.rint(amount)) < 0.0001d) {
+            return Integer.toString((int) Math.rint(amount));
+        }
+        return NumberFormat.getInstance(Locale.US).format(amount).replace(",", " ");
+    }
+
     private Element generatePositionsPdf(PdfConfig pdfConfig) {
         float[] cols = {3f, 3f,1f,1f,1f};
         PdfPTable table = new PdfPTable(cols);
@@ -285,6 +335,36 @@ public class Menu {
         table.addCell(pdfConfig.defaultCell("Вихід, грам",1));
         table.addCell(pdfConfig.defaultCell("К-сть порцій",1));
         table.addCell(pdfConfig.defaultCell("Ціна, грн",1));
+    }
+
+    private void generateShoppingPositionsHeaderDescription(PdfConfig pdfConfig, PdfPTable table) {
+        table.addCell(pdfConfig.defaultCell("Найменування",1));
+        table.addCell(pdfConfig.defaultCell("Список закупівлі",1));
+        table.addCell(pdfConfig.defaultCell("Вихід, грам",1));
+        table.addCell(pdfConfig.defaultCell("К-сть порцій",1));
+        table.addCell(pdfConfig.defaultCell("Ціна, грн",1));
+    }
+
+    private String buildShoppingIngredientsText(PositionAmount positionAmount) {
+        List<IngredientAmount> ingredients = new ArrayList<>(positionAmount.getPosition().getIngredients());
+        ingredients.sort(Comparator.comparing(
+                ingredientAmount -> ingredientAmount.getIngredient().getName(),
+                String.CASE_INSENSITIVE_ORDER
+        ));
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < ingredients.size(); i++) {
+            IngredientAmount ingredientAmount = ingredients.get(i);
+            if (i > 0) {
+                builder.append("\n");
+            }
+            builder.append(ingredientAmount.getIngredient().getName())
+                    .append(" - ")
+                    .append(formatPdfAmount(ingredientAmount.getAmount() * positionAmount.getAmount()))
+                    .append(" ")
+                    .append(ingredientAmount.getUnit().getUnitName());
+        }
+        return builder.toString();
     }
 
     private Element generateSummaryPdf(PdfConfig pdfConfig) {

@@ -67,4 +67,48 @@ public class PdfConfig {
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         return cell;
     }
+
+    public PdfPCell compactCell(String text) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(baseFont, 11)));
+        cell.setPaddingBottom(7);
+        cell.setPaddingTop(7);
+        cell.setPaddingLeft(6);
+        cell.setPaddingRight(6);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        return cell;
+    }
+
+    public PdfPCell compactCell(String text, int style) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(baseFont, 11, style)));
+        cell.setPaddingBottom(7);
+        cell.setPaddingTop(7);
+        cell.setPaddingLeft(6);
+        cell.setPaddingRight(6);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        return cell;
+    }
+
+    public PdfPCell compactCellBold(String text, BaseColor color) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(baseFont, 11, Font.BOLD, color)));
+        cell.setPaddingBottom(7);
+        cell.setPaddingTop(7);
+        cell.setPaddingLeft(6);
+        cell.setPaddingRight(6);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        return cell;
+    }
+
+    public PdfPCell smallCell(String text) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(baseFont, 9)));
+        cell.setPaddingBottom(8);
+        cell.setPaddingTop(8);
+        cell.setPaddingLeft(6);
+        cell.setPaddingRight(6);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        return cell;
+    }
 }
