@@ -8,9 +8,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 
+@NoArgsConstructor
+//@AllArgsConstructor
+@Builder
 public class CategoryResponseDto {
     private Long id;
     private String name;

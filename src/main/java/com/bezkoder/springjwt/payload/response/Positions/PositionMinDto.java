@@ -5,8 +5,9 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-@Builder
+
 @NoArgsConstructor
+@Builder
 public class PositionMinDto {
     private Long id;
     private String name;
