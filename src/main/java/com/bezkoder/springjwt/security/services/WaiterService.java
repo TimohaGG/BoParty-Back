@@ -30,38 +30,44 @@ public class WaiterService {
     public WaiterResponse create(WaiterRequest req) {
         Waiter waiter = new Waiter();
         waiter.setName(req.getName());
+        waiter.setType(normalizeType(req.getType()));
 
         try {
             return WaiterResponse.from(this.waiterRepos.save(waiter));
         } catch (Exception e) {
-            throw new OrderCreateException("Can't create waiter: " + e.getMessage());
+            throw new OrderCreateException("Can't create staff: " + e.getMessage());
         }
     }
 
     @Transactional
     public WaiterResponse edit(WaiterRequest req) {
         if (req.getId() == null) {
-            throw new NoContentException("Waiter id is required");
+            throw new NoContentException("Staff id is required");
         }
 
         Waiter waiter = this.waiterRepos.findById(req.getId())
-                .orElseThrow(() -> new NoContentException("Waiter not found"));
+                .orElseThrow(() -> new NoContentException("Staff not found"));
 
         waiter.setName(req.getName());
+        waiter.setType(normalizeType(req.getType()));
 
         try {
             return WaiterResponse.from(this.waiterRepos.save(waiter));
         } catch (Exception e) {
-            throw new OrderCreateException("Can't edit waiter: " + e.getMessage());
+            throw new OrderCreateException("Can't edit staff: " + e.getMessage());
         }
     }
 
     @Transactional
     public Long delete(Long id) {
         Waiter waiter = this.waiterRepos.findById(id)
-                .orElseThrow(() -> new NoContentException("Waiter not found"));
+                .orElseThrow(() -> new NoContentException("Staff not found"));
 
         this.waiterRepos.delete(waiter);
         return id;
+    }
+
+    private String normalizeType(String type) {
+        return "COOK".equalsIgnoreCase(type) ? "COOK" : "WAITER";
     }
 }

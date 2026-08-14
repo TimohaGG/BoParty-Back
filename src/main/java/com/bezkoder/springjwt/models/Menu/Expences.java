@@ -33,8 +33,6 @@ public class Expences {
     @JoinColumn(name = "menu_id", unique = true)
     private Menu menu;
 
-    private int cook;
-
     @Builder.Default
     @OneToMany(mappedBy = "expences", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpencesWaiter> waiters = new ArrayList<>();

@@ -15,8 +15,7 @@ import java.util.List;
 public class ExpencesRequest {
     private Long id;
     private Long menuId;
-    private int cook;
-    private List<ExpencesWaiterRequest> waiters = new ArrayList<>();
+    private List<ExpencesWaiterRequest> staff = new ArrayList<>();
     private List<OtherExpencesRequest> otherExpences = new ArrayList<>();
     private List<ShoppingSumRequest> shoppingSums = new ArrayList<>();
 }

@@ -20,8 +20,7 @@ public class ExpencesResponse {
     private Long menuId;
     private String client;
     private LocalDateTime date;
-    private int cook;
-    private List<ExpencesWaiterResponse> waiters;
+    private List<ExpencesWaiterResponse> staff;
     private List<OtherExpencesResponse> otherExpences;
     private List<ShoppingSumResponse> shoppingSums;
 
@@ -31,8 +30,7 @@ public class ExpencesResponse {
                 .menuId(expences.getMenu() == null ? null : expences.getMenu().getId())
                 .client(expences.getMenu() == null ? null : expences.getMenu().getClient())
                 .date(expences.getMenu() == null ? null : expences.getMenu().getDate())
-                .cook(expences.getCook())
-                .waiters(expences.getWaiters().stream().map(ExpencesWaiterResponse::from).toList())
+                .staff(expences.getWaiters().stream().map(ExpencesWaiterResponse::from).toList())
                 .otherExpences(expences.getOtherExpences().stream().map(OtherExpencesResponse::from).toList())
                 .shoppingSums(expences.getShoppingSums().stream().map(ShoppingSumResponse::from).toList())
                 .build();

@@ -15,11 +15,13 @@ import lombok.Setter;
 public class WaiterResponse {
     private Long id;
     private String name;
+    private String type;
 
     public static WaiterResponse from(Waiter waiter) {
         return WaiterResponse.builder()
                 .id(waiter.getId())
                 .name(waiter.getName())
+                .type(waiter.getType())
                 .build();
     }
 }

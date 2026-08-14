@@ -110,8 +110,7 @@ public class ExpencesService {
                 .orElseThrow(() -> new NoContentException("Menu not found"));
 
         expences.setMenu(menu);
-        expences.setCook(req.getCook());
-        replaceWaiters(expences, req.getWaiters());
+        replaceWaiters(expences, req.getStaff());
         replaceOtherExpences(expences, req.getOtherExpences());
         replaceShoppingSums(expences, req.getShoppingSums());
     }
@@ -130,23 +129,23 @@ public class ExpencesService {
         }
     }
 
-    private void replaceWaiters(Expences expences, List<ExpencesWaiterRequest> requestedWaiters) {
+    private void replaceWaiters(Expences expences, List<ExpencesWaiterRequest> requestedStaff) {
         new ArrayList<>(expences.getWaiters()).forEach(expences::removeWaiter);
 
-        List<ExpencesWaiterRequest> items = requestedWaiters == null ? List.of() : requestedWaiters;
+        List<ExpencesWaiterRequest> items = requestedStaff == null ? List.of() : requestedStaff;
         List<Long> ids = items.stream()
-                .map(ExpencesWaiterRequest::getWaiterId)
+                .map(ExpencesWaiterRequest::getStaffId)
                 .toList();
         Map<Long, Waiter> waiters = this.waiterRepos.findAllById(ids)
                 .stream()
                 .collect(Collectors.toMap(Waiter::getId, Function.identity()));
 
         if (waiters.size() != new HashSet<>(ids).size()) {
-            throw new NoContentException("Waiter not found");
+            throw new NoContentException("Staff not found");
         }
 
         items.stream()
-                .map(req -> toExpencesWaiter(req, waiters.get(req.getWaiterId())))
+                .map(req -> toExpencesWaiter(req, waiters.get(req.getStaffId())))
                 .forEach(expences::addWaiter);
     }
 
@@ -187,6 +186,7 @@ public class ExpencesService {
         return ExpencesWaiter.builder()
                 .waiter(waiter)
                 .price(req.getPrice())
+                .payed(req.isPayed())
                 .build();
     }
 }

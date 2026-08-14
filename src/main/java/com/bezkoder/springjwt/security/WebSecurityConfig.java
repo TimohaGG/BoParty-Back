@@ -83,7 +83,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
               .requestMatchers("/api/positions/migrate/images-to-blob").permitAll()
               .requestMatchers("/orders/**").authenticated()
               .requestMatchers("/ingredients/**").authenticated()
-              .requestMatchers("/waiters/**").authenticated()
+              .requestMatchers("/staff/**").authenticated()
               .requestMatchers("/expences/**").authenticated()
               .anyRequest().authenticated()
 

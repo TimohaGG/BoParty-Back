@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExpencesWaiterRequest {
-    private Long waiterId;
+    private Long staffId;
     private int price;
+    private boolean payed;
 }

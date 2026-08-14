@@ -14,16 +14,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ExpencesWaiterResponse {
     private Long id;
-    private Long waiterId;
+    private Long staffId;
     private String name;
+    private String type;
     private int price;
+    private boolean payed;
 
     public static ExpencesWaiterResponse from(ExpencesWaiter waiter) {
         return ExpencesWaiterResponse.builder()
                 .id(waiter.getId())
-                .waiterId(waiter.getWaiter() == null ? null : waiter.getWaiter().getId())
+                .staffId(waiter.getWaiter() == null ? null : waiter.getWaiter().getId())
                 .name(waiter.getWaiter() == null ? null : waiter.getWaiter().getName())
+                .type(waiter.getWaiter() == null ? null : waiter.getWaiter().getType())
                 .price(waiter.getPrice())
+                .payed(waiter.isPayed())
                 .build();
     }
 }
