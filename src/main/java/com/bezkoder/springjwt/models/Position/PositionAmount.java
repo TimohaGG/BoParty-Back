@@ -1,6 +1,7 @@
 package com.bezkoder.springjwt.models.Position;
 
 import com.bezkoder.springjwt.models.Menu.Menu;
+import com.bezkoder.springjwt.models.Menu.Waiter;
 import com.bezkoder.springjwt.payload.response.Positions.PositionAmountResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,10 @@ public class PositionAmount {
     private Menu order;
     private int amount;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "cook_id")
+    private Waiter cook;
+
     @Column(nullable = true)
     private String title;
 
@@ -35,6 +40,7 @@ public class PositionAmount {
         positionAmount.position = old.position;
         positionAmount.order = order;
         positionAmount.amount = old.amount;
+        positionAmount.cook = old.cook;
         positionAmount.title = old.title;
         positionAmount.inMenuOrder = old.inMenuOrder;
         return positionAmount;
@@ -81,6 +87,7 @@ public class PositionAmount {
                 .amount(amount)
                 .title(title)
                 .inMenuOrder(inMenuOrder)
+                .cookId(cook == null ? null : cook.getId())
                 .build();
     }
 

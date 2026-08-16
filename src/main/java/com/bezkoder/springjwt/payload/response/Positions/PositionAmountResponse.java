@@ -13,4 +13,5 @@ public class PositionAmountResponse {
     private long amount;
     private String title;
     private int inMenuOrder;
+    private Long cookId;
 }

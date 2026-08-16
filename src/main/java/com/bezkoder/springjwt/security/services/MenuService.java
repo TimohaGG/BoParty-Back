@@ -39,11 +39,12 @@ public class MenuService {
     private final IShoppingListItemRepos iShoppingListItemRepos;
     private final IIngredientsRepos ingredientsRepos;
     private final IUnitRepos unitRepos;
+    private final WaiterRepos waiterRepos;
 
 
 
     @Autowired
-    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos, IShoppingListItemRepos iShoppingListItemRepos, IIngredientsRepos ingredientsRepos, IUnitRepos unitRepos) {
+    public MenuService(MenuRepos menuRepos, IAdditionalInfoRepos iAdditionalInfoRepos, UserDetailsServiceImpl userService, PositionAmountRepos positionAmountRepos, PositionsRepos positionsRepos, ICommonInfoRepos commonInfoRepos, PdfConfig pdfConfig, IShoppingListRepos iShoppingListRepos, IShoppingListItemRepos iShoppingListItemRepos, IIngredientsRepos ingredientsRepos, IUnitRepos unitRepos, WaiterRepos waiterRepos) {
         this.menuRepos = menuRepos;
         this.iAdditionalInfoRepos = iAdditionalInfoRepos;
         this.userService = userService;
@@ -56,6 +57,7 @@ public class MenuService {
         this.iShoppingListItemRepos = iShoppingListItemRepos;
         this.ingredientsRepos = ingredientsRepos;
         this.unitRepos = unitRepos;
+        this.waiterRepos = waiterRepos;
     }
 
     public List<Menu> getOrdersByUserId(Long userId) {
@@ -101,12 +103,14 @@ public class MenuService {
         }
 
         List<PositionAmount> positionAmounts = new ArrayList<>();
+        Map<Long, Waiter> cooksById = loadCooksById(order.getPositions());
         int inMenuOrder = 0;
         for (PosAmountRequest pos: order.getPositions()){
             PositionAmount posAmount = new PositionAmount();
             posAmount.setPosition(this.positionsRepos.findById(pos.getPosId()).orElseThrow(()-> new NoContentException("Position Not Found")));
             posAmount.setAmount(pos.getAmount());
             posAmount.setTitle(pos.getTitle());
+            posAmount.setCook(pos.getCookId() == null ? null : cooksById.get(pos.getCookId()));
             posAmount.setInMenuOrder(pos.getInMenuOrder());
             posAmount.setInMenuOrder(inMenuOrder);
             inMenuOrder++;
@@ -221,12 +225,14 @@ public class MenuService {
 
         List<PosAmountRequest> positions = requestedPositions == null ? List.of() : requestedPositions;
         Map<Long, Position> positionsById = loadPositionsById(positions);
+        Map<Long, Waiter> cooksById = loadCooksById(positions);
 
         int inMenuOrder = 0;
         for (PosAmountRequest posReq : positions) {
             PositionAmount posAmount = new PositionAmount();
             posAmount.setOrder(order);
             posAmount.setAmount(posReq.getAmount());
+            posAmount.setCook(posReq.getCookId() == null ? null : cooksById.get(posReq.getCookId()));
             posAmount.setInMenuOrder(posReq.getInMenuOrder());
             posAmount.setInMenuOrder(inMenuOrder);
             inMenuOrder++;
@@ -258,6 +264,28 @@ public class MenuService {
         }
 
         return positionsById;
+    }
+
+    private Map<Long, Waiter> loadCooksById(List<PosAmountRequest> positions) {
+        Set<Long> cookIds = positions.stream()
+                .map(PosAmountRequest::getCookId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (cookIds.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<Long, Waiter> cooksById = waiterRepos.findAllById(cookIds)
+                .stream()
+                .collect(Collectors.toMap(Waiter::getId, Function.identity()));
+
+        if (cooksById.size() != cookIds.size()) {
+            cookIds.removeAll(cooksById.keySet());
+            throw new NoContentException("Cook not found with id " + cookIds.iterator().next());
+        }
+
+        return cooksById;
     }
 
     private void replaceAdditionalInfo(Menu order, List<MenuInfoRequest> requestedInfo) {
