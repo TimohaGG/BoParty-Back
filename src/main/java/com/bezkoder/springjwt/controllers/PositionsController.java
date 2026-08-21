@@ -13,12 +13,16 @@ import com.bezkoder.springjwt.security.services.PositionsService;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 @Controller
@@ -76,5 +80,21 @@ public class PositionsController {
     @DeleteMapping("/remove")
     public ResponseEntity<Long> removePosition(@RequestParam Long id) {
         return ResponseEntity.ok(this.positionsService.removePosition(id));
+    }
+
+    @GetMapping("/generate/full-menu")
+    public ResponseEntity<byte[]> generateFullMenuPdf() {
+        User current = this.userDetailsService.getCurrentUser();
+        ByteArrayOutputStream out = this.positionsService.generateFullMenuPdf(current.getId());
+        byte[] pdfBytes = out.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("full-menu.pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }

@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.*;
 import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
 import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
@@ -13,15 +14,26 @@ import com.bezkoder.springjwt.repository.*;
 import com.bezkoder.springjwt.security.Exceptions.CategoryNotFoundException;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.PositionCreateException;
+import com.bezkoder.springjwt.security.Exceptions.PdfGenerateException;
 import com.bezkoder.springjwt.security.Exceptions.PositionDeleteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -35,9 +47,10 @@ public class PositionsService {
     private final IIngCategoryRepos iIngCategoryRepos;
     private final BlobContainerClient positionImagesContainerClient;
     private final String positionImagesContainerUrl;
+    private final PdfConfig pdfConfig;
 
     @Autowired
-    public PositionsService(PositionsRepos positionsRepos, CategoriesRepos categoriesRepos, PositionAmountRepos positionAmountRepos, IIngredientsRepos ingredientsRepos, IIngAmountRepos iIngAmountRepos, IUnitRepos unitRepos, IIngCategoryRepos iIngCategoryRepos,
+    public PositionsService(PositionsRepos positionsRepos, CategoriesRepos categoriesRepos, PositionAmountRepos positionAmountRepos, IIngredientsRepos ingredientsRepos, IIngAmountRepos iIngAmountRepos, IUnitRepos unitRepos, IIngCategoryRepos iIngCategoryRepos, PdfConfig pdfConfig,
                             @Value("${azure.storage.connection-string:}") String azureConnectionString,
                             @Value("${azure.storage.positions.container-name:posimgs}") String positionImagesContainerName,
                             @Value("${azure.storage.positions.container-url:https://bopositionsimg.blob.core.windows.net/posimgs}") String positionImagesContainerUrl) {
@@ -48,6 +61,7 @@ public class PositionsService {
         this.ingAmountRepos = iIngAmountRepos;
         this.unitRepos = unitRepos;
         this.iIngCategoryRepos = iIngCategoryRepos;
+        this.pdfConfig = pdfConfig;
         this.positionImagesContainerUrl = positionImagesContainerUrl;
         this.positionImagesContainerClient = azureConnectionString == null || azureConnectionString.isBlank()
                 ? null
@@ -157,6 +171,133 @@ public class PositionsService {
         catch (Exception e){
             throw new PositionDeleteException("Cannot delete position");
         }
+    }
+
+    public ByteArrayOutputStream generateFullMenuPdf(Long userId) {
+        List<Position> positions = new ArrayList<>(this.getAllPositions(userId));
+        positions.sort(Comparator
+                .comparingInt((Position position) -> position.getCategory() == null ? Integer.MAX_VALUE : position.getCategory().getSortingOrder())
+                .thenComparing(position -> position.getCategory() == null ? "" : position.getCategory().getName(), String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Position::getName, String.CASE_INSENSITIVE_ORDER));
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Document document = new Document(PageSize.A4.rotate(), 24, 24, 24, 24);
+            PdfWriter.getInstance(document, out);
+            document.open();
+            document.add(generateFullMenuHeader());
+            document.add(generateFullMenuTable(positions));
+            document.close();
+            return out;
+        } catch (Exception e) {
+            throw new PdfGenerateException("Can't generate full menu PDF!");
+        }
+    }
+
+    private Element generateFullMenuHeader() {
+        PdfPCell titleCell = this.pdfConfig.defaultCellBold("Повне меню", this.pdfConfig.accentTextColor);
+        titleCell.setBackgroundColor(this.pdfConfig.accentColor);
+        titleCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        titleCell.setPaddingLeft(12f);
+
+        PdfPTable titleTable = new PdfPTable(1);
+        titleTable.setWidthPercentage(100);
+        titleTable.setSpacingAfter(18f);
+        titleTable.addCell(titleCell);
+        return titleTable;
+    }
+
+    private Element generateFullMenuTable(List<Position> positions) throws Exception {
+        PdfPTable table = new PdfPTable(new float[]{2.4f, 1.7f, 5.1f, 1.3f});
+        table.setWidthPercentage(100);
+        table.setSpacingAfter(8f);
+
+        addFullMenuHeaderRow(table);
+
+        Map<Long, List<Position>> groupedPositions = new LinkedHashMap<>();
+        for (Position position : positions) {
+            if (position.getCategory() == null) {
+                continue;
+            }
+            groupedPositions.computeIfAbsent(position.getCategory().getId(), key -> new ArrayList<>()).add(position);
+        }
+
+        for (List<Position> categoryPositions : groupedPositions.values()) {
+            if (categoryPositions.isEmpty()) {
+                continue;
+            }
+
+            Category category = categoryPositions.get(0).getCategory();
+            PdfPCell categoryCell = this.pdfConfig.defaultCellBold(category.getName(), this.pdfConfig.accentTextColor);
+            categoryCell.setColspan(4);
+            categoryCell.setBackgroundColor(this.pdfConfig.accentColor);
+            table.addCell(categoryCell);
+
+            for (Position position : categoryPositions) {
+                table.addCell(buildPositionNameCell(position));
+                table.addCell(buildPositionImageCell(position));
+                table.addCell(buildPositionIngredientsCell(position));
+                table.addCell(this.pdfConfig.compactCell(formatPdfAmount(position.getWeight()) + " г", com.itextpdf.text.Font.BOLD));
+            }
+        }
+
+        return table;
+    }
+
+    private void addFullMenuHeaderRow(PdfPTable table) {
+        table.addCell(this.pdfConfig.compactCellBold("Позиція", this.pdfConfig.accentTextColor));
+        table.addCell(this.pdfConfig.compactCellBold("Фото", this.pdfConfig.accentTextColor));
+        table.addCell(this.pdfConfig.compactCellBold("Інгредієнти", this.pdfConfig.accentTextColor));
+        table.addCell(this.pdfConfig.compactCellBold("Вага", this.pdfConfig.accentTextColor));
+
+        for (PdfPCell cell : table.getRow(0).getCells()) {
+            cell.setBackgroundColor(this.pdfConfig.summaryHEaderColor);
+        }
+    }
+
+    private PdfPCell buildPositionNameCell(Position position) {
+        StringBuilder content = new StringBuilder(position.getName());
+        if (position.getDescription() != null && !position.getDescription().isBlank()) {
+            content.append("\n").append(position.getDescription());
+        }
+
+        PdfPCell cell = this.pdfConfig.smallCell(content.toString());
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        return cell;
+    }
+
+    private PdfPCell buildPositionIngredientsCell(Position position) {
+        String ingredients = position.getIngredients().stream()
+                .map(item -> item.getIngredient().getName() + " - " + formatPdfAmount(item.getAmount()) + " " + item.getUnit().getUnitName())
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("-");
+
+        PdfPCell cell = this.pdfConfig.smallCell(ingredients);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        return cell;
+    }
+
+    private PdfPCell buildPositionImageCell(Position position) {
+        if (position.getImgUrl() == null || position.getImgUrl().isBlank()) {
+            return this.pdfConfig.compactCell("Без фото");
+        }
+
+        try {
+            Image image = Image.getInstance(new URL(position.getImgUrl()));
+            image.scaleToFit(110, 110);
+            PdfPCell cell = this.pdfConfig.getImageCell(image);
+            cell.setFixedHeight(118f);
+            return cell;
+        } catch (Exception e) {
+            return this.pdfConfig.compactCell("Без фото");
+        }
+    }
+
+    private String formatPdfAmount(double amount) {
+        if (amount == Math.rint(amount)) {
+            return String.valueOf((long) amount);
+        }
+
+        return String.format(Locale.US, "%.2f", amount).replaceAll("0+$", "").replaceAll("/.$", "");
     }
 
     private String uploadImage(MultipartFile image) {
