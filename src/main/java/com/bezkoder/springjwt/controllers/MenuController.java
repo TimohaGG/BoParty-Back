@@ -23,6 +23,7 @@ import javax.print.attribute.standard.PageRanges;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -167,6 +168,7 @@ public class MenuController {
 
     @GetMapping("/generate/{id}")
     public ResponseEntity<byte[]> generate(@PathVariable Long id) {
+        Menu menu = this.menuService.getOrderById(id);
         ByteArrayOutputStream out = this.menuService.generateOrderPdf(id);
         byte[] pdfBytes = out.toByteArray();
 
@@ -174,7 +176,7 @@ public class MenuController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(ContentDisposition
                 .attachment()
-                .filename("File")
+                .filename(buildMenuPdfFilename(menu))
                 .build());
 
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
@@ -183,6 +185,7 @@ public class MenuController {
 
     @GetMapping("/generate/shopping/{id}")
     public ResponseEntity<byte[]> generateShopping(@PathVariable Long id) {
+        Menu menu = this.menuService.getOrderById(id);
         ByteArrayOutputStream out = this.menuService.generateShoppingListPdf(id);
         byte[] pdfBytes = out.toByteArray();
 
@@ -190,10 +193,26 @@ public class MenuController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(ContentDisposition
                 .attachment()
-                .filename("Shopping-list")
+                .filename(buildShoppingPdfFilename(menu))
                 .build());
 
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
+
+    private String buildMenuPdfFilename(Menu menu) {
+        if (menu.getDate() == null) {
+            return "menu.pdf";
+        }
+
+        return menu.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + ".pdf";
+    }
+
+    private String buildShoppingPdfFilename(Menu menu) {
+        if (menu.getDate() == null) {
+            return "shopping-list.pdf";
+        }
+
+        return "shopping-list-" + menu.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + ".pdf";
     }
 
     @PostMapping("/shopping/toggle")
