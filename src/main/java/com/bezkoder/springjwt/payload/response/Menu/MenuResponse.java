@@ -23,6 +23,7 @@ public class MenuResponse {
     private String deliveryAddress;
     private String orderType;
     private boolean needsWaiter;
+    private double prepayment;
     private boolean isPayed;
     private double totalPrice;
     private List<PositionAmountResponse> positions;

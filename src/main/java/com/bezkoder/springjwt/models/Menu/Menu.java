@@ -57,6 +57,7 @@ public class Menu {
         deliveryAddress = "";
         orderType = "бокси";
         needsWaiter = false;
+        prepayment = 0;
         id = 0L;
         positionsAmount = new ArrayList<>();
         isPayed = false;
@@ -83,6 +84,7 @@ public class Menu {
     private String orderType;
     @ColumnDefault("false")
     private boolean needsWaiter;
+    private double prepayment;
     private double totalPrice;
 
     private int sortingOrder = 0;
@@ -136,6 +138,10 @@ public class Menu {
         if(govTax)
             menuPrice = menuPrice / ((100-govTaxAmount) * 0.01);
         return (int)Math.round(menuPrice);
+    }
+
+    public int getRemainingToPay(){
+        return (int)Math.max(getTotalPrice() - Math.round(prepayment), 0);
     }
 
     public int getServingPrice(){
@@ -211,6 +217,7 @@ public class Menu {
                 .deliveryAddress(order.getDeliveryAddress())
                 .orderType(order.getOrderType())
                 .needsWaiter(order.isNeedsWaiter())
+                .prepayment(order.getPrepayment())
                 .totalPrice(order.getTotalPrice())
                 .isPayed(order.isPayed())
                 .positions(order.getPositionsAmount().stream().map(PositionAmount::toDto).sorted(Comparator.comparing(PositionAmountResponse::getInMenuOrder)).toList())
@@ -394,9 +401,15 @@ public class Menu {
             table.addCell(pdfConfig.defaultCell(String.valueOf(getGovTaxPrice())));
         }
 
-
-
         this.generateFinalPriceRow(table, pdfConfig);
+
+        if (this.prepayment > 0) {
+            table.addCell(pdfConfig.defaultCell("Передплата:"));
+            table.addCell(pdfConfig.defaultCell(NumberFormat.getInstance(Locale.US).format(Math.round(this.prepayment)).replace(","," ") + " грн"));
+        }
+
+        table.addCell(pdfConfig.defaultCell("Залишок до оплати:"));
+        table.addCell(pdfConfig.defaultCell(NumberFormat.getInstance(Locale.US).format(getRemainingToPay()).replace(","," ") + " грн"));
         return table;
     }
 

@@ -23,6 +23,7 @@ public class MenuCreateRequest {
     private String deliveryAddress;
     private String orderType;
     private boolean needsWaiter;
+    private double prepayment;
     private List<PosAmountRequest> positions;
     private List<MenuInfoRequest> additionalInfo;
     private boolean serving;

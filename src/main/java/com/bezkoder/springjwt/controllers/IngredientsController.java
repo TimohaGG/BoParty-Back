@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.controllers;
 
 import com.bezkoder.springjwt.models.Position.IngredientCategory;
 import com.bezkoder.springjwt.payload.request.Ingredients.CreateDto;
+import com.bezkoder.springjwt.payload.request.Ingredients.ChangeIngredientCategoryDto;
 import com.bezkoder.springjwt.payload.request.Ingredients.CreateIngDto;
 import com.bezkoder.springjwt.payload.request.Ingredients.RenameDto;
 import com.bezkoder.springjwt.payload.response.Ingredients.IngredientResponse;
@@ -59,6 +60,11 @@ public class IngredientsController {
     public ResponseEntity<RenameResponse> renameIngredient(@RequestBody RenameDto dto){
         String res = this.igsService.renameIngredient(dto);
         return ResponseEntity.ok(RenameResponse.builder().name(res).build());
+    }
+
+    @PostMapping("/category/change")
+    public ResponseEntity<IngredientResponse> changeIngredientCategory(@RequestBody ChangeIngredientCategoryDto dto){
+        return ResponseEntity.ok(this.igsService.changeIngredientCategory(dto).toIngredientDto());
     }
 
     @PostMapping("/categories/add")

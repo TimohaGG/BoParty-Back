@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.security.services;
 
 import com.bezkoder.springjwt.models.Position.Ingredient;
 import com.bezkoder.springjwt.models.Position.IngredientCategory;
+import com.bezkoder.springjwt.payload.request.Ingredients.ChangeIngredientCategoryDto;
 import com.bezkoder.springjwt.payload.request.Ingredients.CreateDto;
 import com.bezkoder.springjwt.payload.request.Ingredients.CreateIngDto;
 import com.bezkoder.springjwt.payload.request.Ingredients.RenameDto;
@@ -58,6 +59,16 @@ public class IngredientsService {
         ing.setName(dto.name);
         this.igsRepos.save(ing);
         return ing.getName();
+    }
+
+    public Ingredient changeIngredientCategory(ChangeIngredientCategoryDto dto) {
+        Ingredient ingredient = this.igsRepos.findById(dto.getId())
+                .orElseThrow(() -> new CategoryNotFoundException("Ingredient not found"));
+        IngredientCategory category = this.ingCategoryRepos.findById(dto.getCategoryId())
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+
+        ingredient.setIngCategory(category);
+        return this.igsRepos.save(ingredient);
     }
 
     public IngredientCategory addCategory(CreateDto dto) {
