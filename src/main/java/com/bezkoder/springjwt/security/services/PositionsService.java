@@ -134,6 +134,9 @@ public class PositionsService {
             else if(positionCreateDto.getId() == 0){
                 position.setImgUrl(positionCreateDto.getImgUrl());
             }
+            if (positionCreateDto.getCookingImgUrl() != null) {
+                position.setCookingImgUrl(positionCreateDto.getCookingImgUrl());
+            }
 
             long id = this.positionsRepos.save(position).getId();
             position = this.positionsRepos.findById(id).orElseThrow(() -> new PositionCreateException("Can't save position"));
@@ -159,6 +162,16 @@ public class PositionsService {
     public Position updateAccessibility(Long id, boolean accessible) {
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
         position.setAccessible(accessible);
+        return this.positionsRepos.save(position);
+    }
+
+    public Position updateCookingImage(Long id, MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            throw new PositionCreateException("Cooking image is required");
+        }
+
+        Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        position.setCookingImgUrl(uploadImage(image));
         return this.positionsRepos.save(position);
     }
 
@@ -207,7 +220,7 @@ public class PositionsService {
     }
 
     private Element generateFullMenuTable(List<Position> positions) throws Exception {
-        PdfPTable table = new PdfPTable(new float[]{2.4f, 1.7f, 5.1f, 1.3f});
+        PdfPTable table = new PdfPTable(new float[]{2.2f, 1.55f, 1.55f, 4.8f, 1.2f});
         table.setWidthPercentage(100);
         table.setSpacingAfter(8f);
 
@@ -228,13 +241,14 @@ public class PositionsService {
 
             Category category = categoryPositions.get(0).getCategory();
             PdfPCell categoryCell = this.pdfConfig.defaultCellBold(category.getName(), this.pdfConfig.accentTextColor);
-            categoryCell.setColspan(4);
+            categoryCell.setColspan(5);
             categoryCell.setBackgroundColor(this.pdfConfig.accentColor);
             table.addCell(categoryCell);
 
             for (Position position : categoryPositions) {
                 table.addCell(buildPositionNameCell(position));
                 table.addCell(buildPositionImageCell(position));
+                table.addCell(buildPositionCookingImageCell(position));
                 table.addCell(buildPositionIngredientsCell(position));
                 table.addCell(this.pdfConfig.compactCell(formatPdfAmount(position.getWeight()) + " г", com.itextpdf.text.Font.BOLD));
             }
@@ -246,6 +260,7 @@ public class PositionsService {
     private void addFullMenuHeaderRow(PdfPTable table) {
         table.addCell(this.pdfConfig.compactCellBold("Позиція", this.pdfConfig.accentTextColor));
         table.addCell(this.pdfConfig.compactCellBold("Фото", this.pdfConfig.accentTextColor));
+        table.addCell(this.pdfConfig.compactCellBold("Приготування", this.pdfConfig.accentTextColor));
         table.addCell(this.pdfConfig.compactCellBold("Інгредієнти", this.pdfConfig.accentTextColor));
         table.addCell(this.pdfConfig.compactCellBold("Вага", this.pdfConfig.accentTextColor));
 
@@ -281,8 +296,20 @@ public class PositionsService {
             return this.pdfConfig.compactCell("Без фото");
         }
 
+        return buildImageCell(position.getImgUrl());
+    }
+
+    private PdfPCell buildPositionCookingImageCell(Position position) {
+        if (position.getCookingImgUrl() == null || position.getCookingImgUrl().isBlank()) {
+            return this.pdfConfig.compactCell("Без фото");
+        }
+
+        return buildImageCell(position.getCookingImgUrl());
+    }
+
+    private PdfPCell buildImageCell(String imageUrl) {
         try {
-            Image image = Image.getInstance(new URL(position.getImgUrl()));
+            Image image = Image.getInstance(new URL(imageUrl));
             image.scaleToFit(110, 110);
             PdfPCell cell = this.pdfConfig.getImageCell(image);
             cell.setFixedHeight(118f);

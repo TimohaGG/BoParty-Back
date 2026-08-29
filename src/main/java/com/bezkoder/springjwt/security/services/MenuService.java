@@ -803,9 +803,7 @@ public class MenuService {
 //            }
 //        }
 //
-//        res.forEach(el-> System.out.println(el.getIngredient().getName() + " " + el.getAmount()));
 //
-////        ings.forEach(v -> System.out.println(v.getIngredient().getName() + " " + v.getAmount() + " " + v.getUnit().getUnitName()));
 //
 //        return res;
 //    }
@@ -865,7 +863,6 @@ public class MenuService {
 //            }
 //            return res;
 //        }catch (Exception e){
-//            e.printStackTrace();
 //        }
 //       return null;
 //    }

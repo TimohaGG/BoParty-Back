@@ -18,6 +18,7 @@ public class PositionCreateDto {
     private int price;
     private Integer minimumAmount = 10;
     private String imgUrl;
+    private String cookingImgUrl;
     private long categoryId;
     private Boolean accessible = true;
     private IngAmountRequestDto[] ingredients;

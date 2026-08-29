@@ -76,7 +76,6 @@ public class PdfGenerator {
             BaseFont baseFont = BaseFont.createFont("Arial Unicode.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontStream.readAllBytes(), null);
             mainFont = new Font(baseFont, 16, Font.NORMAL, BaseColor.BLACK);
         } catch (IOException | DocumentException e) {
-            System.out.println("Error creating font");
         }
 
         // Load the bold font
@@ -85,7 +84,6 @@ public class PdfGenerator {
             boldFont = new Font(boldBaseFont, 20, Font.BOLD, BaseColor.WHITE);
             blackBoldFont = new Font(boldBaseFont, 16, Font.BOLD, BaseColor.BLACK);
         } catch (DocumentException | IOException e) {
-            System.out.println("Error creating font");
         }
 
     }
@@ -109,7 +107,6 @@ public class PdfGenerator {
             document.add(positions);
             document.add(summary);
         } catch (DocumentException e) {
-            System.out.println("There was an error generating the document");
         }
     }
 
@@ -145,7 +142,6 @@ public class PdfGenerator {
                             table.addCell(cell);
                             isImgSet.set(true);
                         } catch (Exception e) {
-                            System.out.println("Error creating PDF");
                         }
 
                     }

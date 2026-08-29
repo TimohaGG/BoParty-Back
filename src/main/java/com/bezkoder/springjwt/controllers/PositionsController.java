@@ -77,6 +77,12 @@ public class PositionsController {
         return ResponseEntity.ok(res.toResponseDto());
     }
 
+    @PostMapping("/{id}/cooking-image")
+    public ResponseEntity<PositionResponseDto> updateCookingImage(@PathVariable Long id, @RequestParam MultipartFile image) {
+        Position res = this.positionsService.updateCookingImage(id, image);
+        return ResponseEntity.ok(res.toResponseDto());
+    }
+
     @DeleteMapping("/remove")
     public ResponseEntity<Long> removePosition(@RequestParam Long id) {
         return ResponseEntity.ok(this.positionsService.removePosition(id));

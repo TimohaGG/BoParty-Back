@@ -204,7 +204,6 @@ public class Menu {
     }
 
     public static MenuResponse toDto(Menu order){
-        System.out.println(order.getTotalPrice());
         return MenuResponse.builder()
                 .id(order.getId())
                 .date(order.getDate())
@@ -406,10 +405,10 @@ public class Menu {
         if (this.prepayment > 0) {
             table.addCell(pdfConfig.defaultCell("Передплата:"));
             table.addCell(pdfConfig.defaultCell(NumberFormat.getInstance(Locale.US).format(Math.round(this.prepayment)).replace(","," ") + " грн"));
-        }
 
-        table.addCell(pdfConfig.defaultCell("Залишок до оплати:"));
-        table.addCell(pdfConfig.defaultCell(NumberFormat.getInstance(Locale.US).format(getRemainingToPay()).replace(","," ") + " грн"));
+            table.addCell(pdfConfig.defaultCell("Залишок до оплати:"));
+            table.addCell(pdfConfig.defaultCell(NumberFormat.getInstance(Locale.US).format(getRemainingToPay()).replace(","," ") + " грн"));
+        }
         return table;
     }
 

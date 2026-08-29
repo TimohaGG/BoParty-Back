@@ -46,6 +46,9 @@ public class Position {
     @Column(nullable = true, length = 2000)
     private String imgUrl;
 
+    @Column(nullable = true, length = 2000)
+    private String cookingImgUrl;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
@@ -83,6 +86,7 @@ public class Position {
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
+                .cookingImgUrl(cookingImgUrl)
                 .accessible(accessible)
                 .category(category.toResponseDto())
                 .ingredients(ingredients.stream().map(IngredientAmount::toDTO).toList())
@@ -98,6 +102,7 @@ public class Position {
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
+                .cookingImgUrl(cookingImgUrl)
                 .accessible(accessible)
                 .category(category.toResponseDto())
                 .build();
