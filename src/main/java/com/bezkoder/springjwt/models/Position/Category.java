@@ -1,6 +1,6 @@
 package com.bezkoder.springjwt.models.Position;
 
-import com.bezkoder.springjwt.models.User.User;
+import com.bezkoder.springjwt.models.Company.Company;
 import com.bezkoder.springjwt.payload.response.Positions.CategoryResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,8 +25,8 @@ public class Category {
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Position> positions;
 
-    @ManyToOne
-    private User user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Company company;
 
     @ColumnDefault(value = "0")
     private int sortingOrder;
@@ -35,7 +35,8 @@ public class Category {
         return CategoryResponseDto.builder()
                 .id(id)
                 .name(name)
-                .userId(user.getId())
+                .companyId(company == null ? null : company.getId())
+                .companyName(company == null ? null : company.getName())
                 .sortingOrder(sortingOrder)
                 .build();
     }

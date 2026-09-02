@@ -79,7 +79,8 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
           auth
               .requestMatchers("/api/auth/**").permitAll()
               .requestMatchers("/api/orders/positions/**").permitAll()
-              .requestMatchers("/api/positions/categories/**").permitAll()
+              .requestMatchers("/api/positions/categories/public").permitAll()
+              .requestMatchers("/api/companies/public").permitAll()
               .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
               .requestMatchers("/api/positions/migrate/images-to-blob").permitAll()
               .requestMatchers("/orders/**").authenticated()

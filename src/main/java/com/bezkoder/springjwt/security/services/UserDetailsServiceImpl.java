@@ -55,6 +55,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         rolesRepos.save(new Role(ERole.ROLE_USER));
         rolesRepos.save(new Role(ERole.ROLE_MODERATOR));
         rolesRepos.save(new Role(ERole.ROLE_ADMIN));
+        rolesRepos.save(new Role(ERole.ROLE_SUPERADMIN));
     }
 
     public User GetUserById(long id) {

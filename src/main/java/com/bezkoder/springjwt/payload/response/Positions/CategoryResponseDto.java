@@ -14,13 +14,15 @@ import lombok.Setter;
 public class CategoryResponseDto {
     private Long id;
     private String name;
-    private long userId;
+    private Long companyId;
+    private String companyName;
     private int sortingOrder;
 
-    public CategoryResponseDto(Long id, String name, long userId, int sortingOrder) {
+    public CategoryResponseDto(Long id, String name, Long companyId, String companyName, int sortingOrder) {
         this.id = id;
         this.name = name;
-        this.userId = userId;
+        this.companyId = companyId;
+        this.companyName = companyName;
         this.sortingOrder = sortingOrder;
     }
 }

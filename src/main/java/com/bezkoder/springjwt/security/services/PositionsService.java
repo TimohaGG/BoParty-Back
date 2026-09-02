@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.bezkoder.springjwt.models.PdfConfig;
 import com.bezkoder.springjwt.models.Position.*;
+import com.bezkoder.springjwt.models.User.User;
 import com.bezkoder.springjwt.payload.request.Ingredients.IngAmountRequestDto;
 import com.bezkoder.springjwt.payload.request.Position.PositionCreateDto;
 import com.bezkoder.springjwt.payload.response.Positions.PositionMinDto;
@@ -48,9 +49,11 @@ public class PositionsService {
     private final BlobContainerClient positionImagesContainerClient;
     private final String positionImagesContainerUrl;
     private final PdfConfig pdfConfig;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     public PositionsService(PositionsRepos positionsRepos, CategoriesRepos categoriesRepos, PositionAmountRepos positionAmountRepos, IIngredientsRepos ingredientsRepos, IIngAmountRepos iIngAmountRepos, IUnitRepos unitRepos, IIngCategoryRepos iIngCategoryRepos, PdfConfig pdfConfig,
+                            UserDetailsServiceImpl userDetailsService,
                             @Value("${azure.storage.connection-string:}") String azureConnectionString,
                             @Value("${azure.storage.positions.container-name:posimgs}") String positionImagesContainerName,
                             @Value("${azure.storage.positions.container-url:https://bopositionsimg.blob.core.windows.net/posimgs}") String positionImagesContainerUrl) {
@@ -62,6 +65,7 @@ public class PositionsService {
         this.unitRepos = unitRepos;
         this.iIngCategoryRepos = iIngCategoryRepos;
         this.pdfConfig = pdfConfig;
+        this.userDetailsService = userDetailsService;
         this.positionImagesContainerUrl = positionImagesContainerUrl;
         this.positionImagesContainerClient = azureConnectionString == null || azureConnectionString.isBlank()
                 ? null
@@ -80,7 +84,12 @@ public class PositionsService {
     }
 
     public List<Position> getAllPositions(long userId){
-        List<Position> res = positionsRepos.findAllByCategoryUserId(userId);
+        User user = getUserById(userId);
+        if (user.getCompany() == null) {
+            throw new NoContentException("User is not linked to a company");
+        }
+
+        List<Position> res = positionsRepos.findAllByCategoryCompanyId(user.getCompany().getId());
 
         if(res.isEmpty()){
             throw new NoContentException("No positions found");
@@ -90,7 +99,12 @@ public class PositionsService {
     }
 
     public List<Position> getArchivedPositions(long userId){
-        List<Position> res = positionsRepos.findArchivedByCategoryUserId(userId);
+        User user = getUserById(userId);
+        if (user.getCompany() == null) {
+            throw new NoContentException("User is not linked to a company");
+        }
+
+        List<Position> res = positionsRepos.findArchivedByCategoryCompanyId(user.getCompany().getId());
 
         if(res.isEmpty()){
             throw new NoContentException("No archived positions found");
@@ -120,9 +134,11 @@ public class PositionsService {
 
     public Position addPosition(PositionCreateDto positionCreateDto, MultipartFile image) {
         try{
+            User currentUser = this.userDetailsService.getCurrentUser();
             Position position;
             if(positionCreateDto.getId() != 0){
                 position = positionsRepos.findById(positionCreateDto.getId()).orElseThrow(() -> new PositionCreateException("Position id not found"));
+                assertSameCompany(position, currentUser);
                 position.getIngredients().clear();
             }
             else {
@@ -130,6 +146,7 @@ public class PositionsService {
             }
 
             Category category = this.categoriesRepos.findById(positionCreateDto.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+            assertSameCompany(category, currentUser);
             position.setName(positionCreateDto.getName());
             position.setDescription(positionCreateDto.getDescription());
             position.setWeight(positionCreateDto.getWeight());
@@ -172,6 +189,7 @@ public class PositionsService {
 
     public Position updateAccessibility(Long id, boolean accessible) {
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        assertSameCompany(position, this.userDetailsService.getCurrentUser());
         position.setAccessible(accessible);
         return this.positionsRepos.save(position);
     }
@@ -182,18 +200,21 @@ public class PositionsService {
         }
 
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        assertSameCompany(position, this.userDetailsService.getCurrentUser());
         position.setCookingImgUrl(uploadImage(image));
         return this.positionsRepos.save(position);
     }
 
     public Position updateArchiveStatus(Long id, boolean archived) {
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        assertSameCompany(position, this.userDetailsService.getCurrentUser());
         position.setArchived(archived);
         return this.positionsRepos.save(position);
     }
 
     public Long removePosition(Long id) {
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        assertSameCompany(position, this.userDetailsService.getCurrentUser());
         try{
             this.positionsRepos.delete(position);
             return position.getId();
@@ -373,5 +394,29 @@ public class PositionsService {
         }
 
         return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+    }
+
+    private User getUserById(long userId) {
+        User user = this.userDetailsService.GetUserById(userId);
+        if (user == null) {
+            throw new NoContentException("User not found");
+        }
+        return user;
+    }
+
+    private void assertSameCompany(Position position, User user) {
+        if (position == null || position.getCategory() == null) {
+            throw new NoContentException("Position not found");
+        }
+        assertSameCompany(position.getCategory(), user);
+    }
+
+    private void assertSameCompany(Category category, User user) {
+        if (user == null || user.getCompany() == null) {
+            throw new NoContentException("User is not linked to a company");
+        }
+        if (category.getCompany() == null || !category.getCompany().getId().equals(user.getCompany().getId())) {
+            throw new NoContentException("Category is not linked to user's company");
+        }
     }
 }

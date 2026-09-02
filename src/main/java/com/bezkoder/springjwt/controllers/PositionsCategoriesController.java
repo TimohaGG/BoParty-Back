@@ -1,6 +1,5 @@
 package com.bezkoder.springjwt.controllers;
 
-import com.bezkoder.springjwt.models.Position.Category;
 import com.bezkoder.springjwt.payload.request.Position.PositionCategoryCreateReq;
 import com.bezkoder.springjwt.payload.response.Positions.CategoryResponseDto;
 import com.bezkoder.springjwt.repository.CategoriesRepos;
@@ -22,14 +21,14 @@ public class PositionsCategoriesController {
         this.categoriesService = categoriesService;
     }
 
-    @GetMapping("/get/{userId}")
-    public ResponseEntity<List<CategoryResponseDto>> getAllCategories(@PathVariable long userId){
-        try{
-            return ResponseEntity.ok(categoriesService.getAll(userId));
-        }catch(Exception e){
-            throw new NoContentException("There are no categories");
-        }
+    @GetMapping("/get")
+    public ResponseEntity<List<CategoryResponseDto>> getCurrentCompanyCategories(){
+        return ResponseEntity.ok(categoriesService.getAllForCurrentCompany());
+    }
 
+    @GetMapping("/public")
+    public ResponseEntity<List<CategoryResponseDto>> getPublicCategories(){
+        return ResponseEntity.ok(categoriesService.getAllForPublicCompany());
     }
 
     @PostMapping("/add")

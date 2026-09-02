@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bezkoder.springjwt.models.Company.Company;
 import com.bezkoder.springjwt.models.Menu.Menu;
-import com.bezkoder.springjwt.models.Position.Category;
 import com.bezkoder.springjwt.models.Position.Ingredient;
 import jakarta.persistence.*;
         import jakarta.validation.constraints.Email;
@@ -53,16 +53,15 @@ public class User {
     private String defaultCalendar;
     private String defaultColor;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Company company;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(  name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Category> categories;
-
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Ingredient> ingredients;
@@ -121,6 +120,14 @@ public class User {
 
     public byte[] getLogo() {
         return logo;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }
 

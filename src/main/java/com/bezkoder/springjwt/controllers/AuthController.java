@@ -71,7 +71,8 @@ public class AuthController {
     List<String> roles = userDetails.getAuthorities().stream()
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
-    String logo = userRepository.findById(userDetails.getId())
+    User user = userRepository.findById(userDetails.getId()).orElse(null);
+    String logo = java.util.Optional.ofNullable(user)
             .map(User::getLogo)
             .map(Base64.getEncoder()::encodeToString)
             .orElse(null);
@@ -81,7 +82,9 @@ public class AuthController {
             userDetails.getUsername(),
             userDetails.getEmail(),
             roles,
-            logo));
+            logo,
+            user == null || user.getCompany() == null ? null : user.getCompany().getId(),
+            user == null || user.getCompany() == null ? null : user.getCompany().getName()));
   }
 
   @PostMapping("/signup")
@@ -116,6 +119,12 @@ public class AuthController {
             Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(adminRole);
+
+            break;
+          case "superadmin":
+            Role superAdminRole = roleRepository.findByName(ERole.ROLE_SUPERADMIN)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(superAdminRole);
 
             break;
           case "mod":

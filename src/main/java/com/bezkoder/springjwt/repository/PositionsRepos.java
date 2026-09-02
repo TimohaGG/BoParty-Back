@@ -22,14 +22,14 @@ public interface PositionsRepos extends JpaRepository<Position, Long> {
     Optional<Position> findByNameIgnoreCaseAndWhitespace(@Param("name") String name);
 
     @Query("""
-    SELECT p FROM Position p WHERE p.category.user.id=:userId AND (p.archived IS NULL OR p.archived = false)
+    SELECT p FROM Position p WHERE p.category.company.id=:companyId AND (p.archived IS NULL OR p.archived = false)
 """)
-    List<Position> findAllByCategoryUserId(@Param("userId") Long userId);
+    List<Position> findAllByCategoryCompanyId(@Param("companyId") Long companyId);
 
     @Query("""
-    SELECT p FROM Position p WHERE p.category.user.id=:userId AND p.archived = true
+    SELECT p FROM Position p WHERE p.category.company.id=:companyId AND p.archived = true
 """)
-    List<Position> findArchivedByCategoryUserId(@Param("userId") Long userId);
+    List<Position> findArchivedByCategoryCompanyId(@Param("companyId") Long companyId);
 
     @Query("""
     SELECT p FROM Position p WHERE p.accessible AND p.category.id=:categoryId AND (p.archived IS NULL OR p.archived = false)

@@ -96,8 +96,6 @@ public class MenuService {
                     .taxPercentage(order.getTaxAmount())
                     .govTaxAmount(order.getGovTaxAmount())
                     .govTax(order.isGovTax())
-
-//                .additionalInfo(order.getAdditionalInfo().stream().map(OrderAdditionalInfo::parse).toList())
                     .build();
         }catch (Exception e){
             throw new OrderCreateException("Error creating order. Not all data written");

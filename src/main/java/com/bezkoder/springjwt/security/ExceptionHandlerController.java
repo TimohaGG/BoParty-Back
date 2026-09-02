@@ -80,6 +80,13 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({CompanyException.class})
+    public ResponseEntity<ExceptionMessage> handleException(CompanyException e) {
+        ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
+        logger.log(Level.SEVERE, e.getMessage());
+        return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({OrderCreateException.class})
     public ResponseEntity<ExceptionMessage> handleException(OrderCreateException e) {
         ExceptionMessage msg = new ExceptionMessage(HttpStatus.BAD_REQUEST,e.getMessage());
