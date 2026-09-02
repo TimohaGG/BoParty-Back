@@ -21,5 +21,6 @@ public class PositionCreateDto {
     private String cookingImgUrl;
     private long categoryId;
     private Boolean accessible = true;
+    private Boolean archived = false;
     private IngAmountRequestDto[] ingredients;
 }

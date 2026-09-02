@@ -11,17 +11,28 @@ import java.util.Optional;
 
 @Repository
 public interface PositionsRepos extends JpaRepository<Position, Long> {
-    List<Position> findAllByCategoryId(Long categoryId);
+    @Query("""
+    SELECT p FROM Position p WHERE p.category.id=:categoryId AND (p.archived IS NULL OR p.archived = false)
+""")
+    List<Position> findAllByCategoryId(@Param("categoryId") Long categoryId);
 
     Optional<Position> findByNameContainingIgnoreCase(String name);
 
     @Query("SELECT p FROM Position p WHERE LOWER(REPLACE(p.name, ' ', '')) = LOWER(REPLACE(:name, ' ', ''))")
     Optional<Position> findByNameIgnoreCaseAndWhitespace(@Param("name") String name);
 
-    List<Position> findAllByCategoryUserId(Long categoryId);
+    @Query("""
+    SELECT p FROM Position p WHERE p.category.user.id=:userId AND (p.archived IS NULL OR p.archived = false)
+""")
+    List<Position> findAllByCategoryUserId(@Param("userId") Long userId);
 
     @Query("""
-    SELECT p FROM Position p WHERE p.accessible AND p.category.id=:categoryId
+    SELECT p FROM Position p WHERE p.category.user.id=:userId AND p.archived = true
+""")
+    List<Position> findArchivedByCategoryUserId(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT p FROM Position p WHERE p.accessible AND p.category.id=:categoryId AND (p.archived IS NULL OR p.archived = false)
 """)
     List<Position> findAccessibleByCategoryId(@Param("categoryId")Long categoryId);
 }

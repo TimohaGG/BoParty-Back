@@ -89,6 +89,16 @@ public class PositionsService {
         return res;
     }
 
+    public List<Position> getArchivedPositions(long userId){
+        List<Position> res = positionsRepos.findArchivedByCategoryUserId(userId);
+
+        if(res.isEmpty()){
+            throw new NoContentException("No archived positions found");
+        }
+
+        return res;
+    }
+
     public List<PositionMinDto> getAllPositionsByCategoryId(Long categoryId) {
         List<Position> res;
         if(categoryId == 0){
@@ -127,6 +137,7 @@ public class PositionsService {
             position.setMinimumAmount(positionCreateDto.getMinimumAmount() == null ? 10 : positionCreateDto.getMinimumAmount());
             position.setCategory(category);
             position.setAccessible(positionCreateDto.getAccessible() == null ? true : positionCreateDto.getAccessible());
+            position.setArchived(positionCreateDto.getArchived() == null ? false : positionCreateDto.getArchived());
 
             if(image != null && !image.isEmpty()){
                 position.setImgUrl(uploadImage(image));
@@ -172,6 +183,12 @@ public class PositionsService {
 
         Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
         position.setCookingImgUrl(uploadImage(image));
+        return this.positionsRepos.save(position);
+    }
+
+    public Position updateArchiveStatus(Long id, boolean archived) {
+        Position position = this.positionsRepos.findById(id).orElseThrow(() -> new NoContentException("Position not found"));
+        position.setArchived(archived);
         return this.positionsRepos.save(position);
     }
 

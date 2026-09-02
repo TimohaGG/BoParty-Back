@@ -22,6 +22,7 @@ public class PositionResponseDto {
     private String imgUrl;
     private String cookingImgUrl;
     private Boolean accessible;
+    private Boolean archived;
     private CategoryResponseDto category;
     private List<IngAmountRequestDto> ingredients;
 }

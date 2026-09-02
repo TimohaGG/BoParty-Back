@@ -17,5 +17,6 @@ public class PositionMinDto {
     private String imgUrl;
     private String cookingImgUrl;
     private Boolean accessible;
+    private Boolean archived;
     private CategoryResponseDto category;
 }

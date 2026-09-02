@@ -43,6 +43,11 @@ public class Position {
     @Column(name = "is_accessible", nullable = false)
     private Boolean accessible = true;
 
+    @Builder.Default
+    @ColumnDefault("false")
+    @Column(name = "is_archived", nullable = false)
+    private Boolean archived = false;
+
     @Column(nullable = true, length = 2000)
     private String imgUrl;
 
@@ -88,6 +93,7 @@ public class Position {
                 .imgUrl(imgUrl)
                 .cookingImgUrl(cookingImgUrl)
                 .accessible(accessible)
+                .archived(archived)
                 .category(category.toResponseDto())
                 .ingredients(ingredients.stream().map(IngredientAmount::toDTO).toList())
                 .build();
@@ -104,6 +110,7 @@ public class Position {
                 .imgUrl(imgUrl)
                 .cookingImgUrl(cookingImgUrl)
                 .accessible(accessible)
+                .archived(archived)
                 .category(category.toResponseDto())
                 .build();
     }

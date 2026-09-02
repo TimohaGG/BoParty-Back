@@ -44,6 +44,13 @@ public class PositionsController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping("/archive")
+    public ResponseEntity<List<PositionMinDto>> getArchivedPositions() {
+        User current = this.userDetailsService.getCurrentUser();
+        List<PositionMinDto> res = positionsService.getArchivedPositions(current.getId()).stream().map(Position::toMinDto).toList();
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<PositionResponseDto> getPositionById(@PathVariable Long id) {
         Position position = positionsService.getPositionById(id);
@@ -80,6 +87,18 @@ public class PositionsController {
     @PostMapping("/{id}/cooking-image")
     public ResponseEntity<PositionResponseDto> updateCookingImage(@PathVariable Long id, @RequestParam MultipartFile image) {
         Position res = this.positionsService.updateCookingImage(id, image);
+        return ResponseEntity.ok(res.toResponseDto());
+    }
+
+    @PostMapping("/{id}/archive")
+    public ResponseEntity<PositionResponseDto> archivePosition(@PathVariable Long id) {
+        Position res = this.positionsService.updateArchiveStatus(id, true);
+        return ResponseEntity.ok(res.toResponseDto());
+    }
+
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<PositionResponseDto> restorePosition(@PathVariable Long id) {
+        Position res = this.positionsService.updateArchiveStatus(id, false);
         return ResponseEntity.ok(res.toResponseDto());
     }
 
