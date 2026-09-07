@@ -3,6 +3,7 @@ package com.bezkoder.springjwt.security.services;
 import com.bezkoder.springjwt.models.Menu.Waiter;
 import com.bezkoder.springjwt.payload.request.Menus.WaiterRequest;
 import com.bezkoder.springjwt.payload.response.Menu.WaiterResponse;
+import com.bezkoder.springjwt.repository.StaffCategoryRepos;
 import com.bezkoder.springjwt.repository.WaiterRepos;
 import com.bezkoder.springjwt.security.Exceptions.NoContentException;
 import com.bezkoder.springjwt.security.Exceptions.OrderCreateException;
@@ -14,9 +15,11 @@ import java.util.List;
 @Service
 public class WaiterService {
     private final WaiterRepos waiterRepos;
+    private final StaffCategoryRepos staffCategoryRepos;
 
-    public WaiterService(WaiterRepos waiterRepos) {
+    public WaiterService(WaiterRepos waiterRepos, StaffCategoryRepos staffCategoryRepos) {
         this.waiterRepos = waiterRepos;
+        this.staffCategoryRepos = staffCategoryRepos;
     }
 
     public List<WaiterResponse> getAll() {
@@ -31,6 +34,7 @@ public class WaiterService {
         Waiter waiter = new Waiter();
         waiter.setName(req.getName());
         waiter.setType(normalizeType(req.getType()));
+        waiter.setCookPercent(getCookPercent(req));
 
         try {
             return WaiterResponse.from(this.waiterRepos.save(waiter));
@@ -50,6 +54,7 @@ public class WaiterService {
 
         waiter.setName(req.getName());
         waiter.setType(normalizeType(req.getType()));
+        waiter.setCookPercent(getCookPercent(req));
 
         try {
             return WaiterResponse.from(this.waiterRepos.save(waiter));
@@ -68,6 +73,16 @@ public class WaiterService {
     }
 
     private String normalizeType(String type) {
-        return "COOK".equalsIgnoreCase(type) ? "COOK" : "WAITER";
+        if ("COOK".equalsIgnoreCase(type)) {
+            return "COOK";
+        }
+        if (type != null && this.staffCategoryRepos.existsByCodeIgnoreCase(type)) {
+            return type.trim();
+        }
+        return "WAITER";
+    }
+
+    private double getCookPercent(WaiterRequest req) {
+        return "COOK".equalsIgnoreCase(req.getType()) ? Math.max(req.getCookPercent(), 0) : 0;
     }
 }

@@ -28,6 +28,10 @@ public class Waiter {
     @ColumnDefault("'WAITER'")
     private String type = "WAITER";
 
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private double cookPercent = 0;
+
     @JsonIgnore
     @OneToMany(mappedBy = "waiter", cascade = CascadeType.ALL)
     private Set<ExpencesWaiter> expences = new HashSet<>();

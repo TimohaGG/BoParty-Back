@@ -66,21 +66,21 @@ public class Menu {
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime date;
 
-    @Column(nullable = true)
+    @Column()
     private String client;
-    @Column(nullable = true)
+    @Column()
     private int guestsAmount;
-    @Column(nullable = true)
+    @Column()
     private String duration;
-    @Column(nullable = true)
+    @Column()
     private String format;
     @ColumnDefault("0688714410")
     private String phone;
-    @Column(nullable = true)
+    @Column()
     private String deliveryType;
-    @Column(nullable = true, length = 2000)
+    @Column(length = 2000)
     private String deliveryAddress;
-    @Column(nullable = true)
+    @Column()
     private String orderType;
     @ColumnDefault("false")
     private boolean needsWaiter;
@@ -92,7 +92,7 @@ public class Menu {
     private double taxPercentage = 10;
 
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
-    private List<PositionAmount> positionsAmount = new ArrayList<>();
+    private List<PositionAmount> positionsAmount;
 
     @JsonIgnore
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER,cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},orphanRemoval = true)
@@ -180,28 +180,28 @@ public class Menu {
         positionsAmount.add(position);
     }
 
-    public int getOnOnePerson(){
-        if(guestsAmount==0){
-            return 0;
-        }
-        return (int)getPrice() / guestsAmount;
-    }
+//    public int getOnOnePerson(){
+//        if(guestsAmount==0){
+//            return 0;
+//        }
+//        return (int)getPrice() / guestsAmount;
+//    }
 
     public void removePosition(PositionAmount positionAmount) {
         this.positionsAmount.remove(positionAmount);
         positionAmount.setOrder(null);
     }
-
-    public static MenuCardResponse toCardDto(Menu order){
-        return MenuCardResponse.builder()
-                .date(order.getDate())
-                .id(order.getId())
-                .totalPrice(order.getTotalPrice())
-                .client(order.getClient())
-                .isPayed(order.isPayed())
-                .temporary(order.isTemporary())
-                .build();
-    }
+//
+//    public static MenuCardResponse toCardDto(Menu order){
+//        return MenuCardResponse.builder()
+//                .date(order.getDate())
+//                .id(order.getId())
+//                .totalPrice(order.getTotalPrice())
+//                .client(order.getClient())
+//                .isPayed(order.isPayed())
+//                .temporary(order.isTemporary())
+//                .build();
+//    }
 
     public static MenuResponse toDto(Menu order){
         return MenuResponse.builder()
@@ -259,7 +259,6 @@ public class Menu {
             document.open();
             document.add(this.generateHeaderPdf(pdfConfig));
             document.add(this.generateShoppingPositionsPdf(pdfConfig));
-            document.add(this.generateSummaryPdf(pdfConfig));
             document.close();
             return out;
         } catch (Exception e) {
@@ -268,7 +267,7 @@ public class Menu {
     }
 
     private Element generateShoppingPositionsPdf(PdfConfig pdfConfig) {
-        float[] cols = {3f, 3f, 1f, 1f, 1f};
+        float[] cols = {2.5f, 1.1f, 1.4f, 4.1f, 0.9f};
         PdfPTable table = new PdfPTable(cols);
         table.setWidthPercentage(100);
         table.addCell(this.generatePositionsHeader(pdfConfig));
@@ -277,19 +276,23 @@ public class Menu {
         List<PositionAmount> sortedPositions = new ArrayList<>(this.positionsAmount);
         sortedPositions.sort(Comparator.comparingInt(PositionAmount::getInMenuOrder));
 
-        sortedPositions.forEach(pos -> {
+        for (PositionAmount pos : sortedPositions) {
             if (pos.getTitle() != null && !pos.getTitle().isBlank()) {
                 PdfPCell cell = pdfConfig.defaultCell(pos.getTitle());
                 cell.setColspan(5);
                 table.addCell(cell);
             }
 
+            if (pos.getPosition() == null) {
+                continue;
+            }
+
             table.addCell(pdfConfig.defaultCell(pos.getPosName()));
-            table.addCell(pdfConfig.smallCell(buildShoppingIngredientsText(pos)));
-            table.addCell(pdfConfig.defaultCell(Integer.toString((int) pos.getPosition().getWeight())));
             table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
-            table.addCell(pdfConfig.defaultCell(Integer.toString((int) pos.getPosition().getPrice())));
-        });
+            table.addCell(buildShoppingPositionImageCell(pdfConfig, pos));
+            table.addCell(pdfConfig.smallCell(buildShoppingIngredientsText(pos)));
+            table.addCell(pdfConfig.defaultCell((int) pos.getPosition().getWeight() + " г"));
+        }
 
         return table;
     }
@@ -345,10 +348,28 @@ public class Menu {
 
     private void generateShoppingPositionsHeaderDescription(PdfConfig pdfConfig, PdfPTable table) {
         table.addCell(pdfConfig.defaultCell("Найменування",1));
-        table.addCell(pdfConfig.defaultCell("Список закупівлі",1));
-        table.addCell(pdfConfig.defaultCell("Вихід, грам",1));
         table.addCell(pdfConfig.defaultCell("К-сть порцій",1));
-        table.addCell(pdfConfig.defaultCell("Ціна, грн",1));
+        table.addCell(pdfConfig.defaultCell("Фото",1));
+        table.addCell(pdfConfig.defaultCell("Загальна к-сть інгредієнтів",1));
+        table.addCell(pdfConfig.defaultCell("Вихід",1));
+    }
+
+    private PdfPCell buildShoppingPositionImageCell(PdfConfig pdfConfig, PositionAmount positionAmount) {
+        if (positionAmount.getPosition() == null
+                || positionAmount.getPosition().getImgUrl() == null
+                || positionAmount.getPosition().getImgUrl().isBlank()) {
+            return pdfConfig.compactCell("Без фото");
+        }
+
+        try {
+            Image img = Image.getInstance(positionAmount.getPosition().getImgUrl());
+            img.scaleToFit(70, 70);
+            PdfPCell cell = pdfConfig.getImageCell(img);
+            cell.setFixedHeight(84f);
+            return cell;
+        } catch (BadElementException | IOException e) {
+            return pdfConfig.compactCell("Без фото");
+        }
     }
 
     private String buildShoppingIngredientsText(PositionAmount positionAmount) {

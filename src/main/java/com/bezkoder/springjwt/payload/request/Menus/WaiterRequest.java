@@ -13,4 +13,5 @@ public class WaiterRequest {
     private Long id;
     private String name;
     private String type;
+    private double cookPercent;
 }
