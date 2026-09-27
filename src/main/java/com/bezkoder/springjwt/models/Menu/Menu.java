@@ -259,6 +259,9 @@ public class Menu {
             document.open();
             document.add(this.generateHeaderPdf(pdfConfig));
             document.add(this.generateShoppingPositionsPdf(pdfConfig));
+            if (hasShoppingAdditionalInfo()) {
+                document.add(this.generateShoppingAdditionalInfoPdf(pdfConfig));
+            }
             document.close();
             return out;
         } catch (Exception e) {
@@ -295,6 +298,40 @@ public class Menu {
         }
 
         return table;
+    }
+
+    private boolean hasShoppingAdditionalInfo() {
+        return this.additionalInfo != null && this.additionalInfo.stream()
+                .anyMatch(info -> !isBlank(info.getTitle()) || !isBlank(info.getDescription()));
+    }
+
+    private Element generateShoppingAdditionalInfoPdf(PdfConfig pdfConfig) {
+        float[] cols = {2f, 5f};
+        PdfPTable table = new PdfPTable(cols);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(14f);
+
+        PdfPCell header = pdfConfig.defaultCellBold("Додаткова інформація", pdfConfig.accentTextColor);
+        header.setBackgroundColor(pdfConfig.summaryHEaderColor);
+        header.setColspan(2);
+        table.addCell(header);
+
+        this.additionalInfo.stream()
+                .filter(info -> !isBlank(info.getTitle()) || !isBlank(info.getDescription()))
+                .forEach(info -> {
+                    table.addCell(pdfConfig.defaultCell(nullToEmpty(info.getTitle())));
+                    table.addCell(pdfConfig.defaultCell(nullToEmpty(info.getDescription())));
+                });
+
+        return table;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private String formatPdfAmount(double amount) {
