@@ -23,14 +23,14 @@ public interface MenuRepos extends JpaRepository<Menu, Long> {
 
     @Query("""
 select new com.bezkoder.springjwt.payload.response.Menu.MinMenuResp(
-o.id,o.date,o.client,o.totalPrice,o.temporary
+o.id,o.date,o.client,o.totalPrice,o.isPayed,o.temporary
 ) from Menu o where MONTH(o.date) = MONTH(CURRENT_DATE) AND YEAR(o.date) = YEAR(CURRENT_DATE) order by o.date desc 
 """)
     List<MinMenuResp> findAllMin();
 
     @Query("""
 select new com.bezkoder.springjwt.payload.response.Menu.MinMenuResp(
-o.id, o.date, o.client, o.totalPrice, o.temporary
+o.id, o.date, o.client, o.totalPrice, o.isPayed, o.temporary
 ) from Menu o
 where o.user.id = :userId
   and o.temporary = false
@@ -41,15 +41,23 @@ order by o.date desc
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
-o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o where o.date >=:startDate AND o.user.id = :userId""")
-    Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate,@Param("userId")long userId, Pageable pageable);
+o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o
+where o.date >=:startDate
+  AND o.user.id = :userId
+  AND (:payed IS NULL OR o.isPayed = :payed)
+  AND (:joined IS NULL OR o.temporary = :joined)""")
+    Page<MenuCardResponse> findAllForList(@Param("startDate")LocalDateTime startDate, @Param("userId")long userId, @Param("payed") Boolean payed, @Param("joined") Boolean joined, Pageable pageable);
 
 
     @Query(
             """
 select new com.bezkoder.springjwt.payload.response.Menu.MenuCardResponse(
-o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o where o.date <:startDate AND o.user.id = :userId""")
-    Page<MenuCardResponse> findAllForListArchive(@Param("startDate")LocalDateTime startDate,@Param("userId")long userId, Pageable pageable);
+o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o
+where o.date <:startDate
+  AND o.user.id = :userId
+  AND (:payed IS NULL OR o.isPayed = :payed)
+  AND (:joined IS NULL OR o.temporary = :joined)""")
+    Page<MenuCardResponse> findAllForListArchive(@Param("startDate")LocalDateTime startDate, @Param("userId")long userId, @Param("payed") Boolean payed, @Param("joined") Boolean joined, Pageable pageable);
 
     Page<Menu> findAllByDateAfter(LocalDateTime date, Pageable pageable);
     Page<Menu> findAllByDateStartingWith(LocalDateTime date, Pageable pageable);
@@ -58,13 +66,21 @@ o.id,o.date, o.totalPrice, o.client, o.isPayed, o.temporary) from Menu o where o
 select COUNT(o) from Menu o""")
     Integer findTotalOrdersAmount();
     @Query("""
-select COUNT(o) from Menu o where o.date >=:startDate""")
-    Integer findTotalFutureOrders(@Param("startDate")LocalDateTime startDate);
+select COUNT(o) from Menu o
+where o.date >=:startDate
+  AND o.user.id = :userId
+  AND (:payed IS NULL OR o.isPayed = :payed)
+  AND (:joined IS NULL OR o.temporary = :joined)""")
+    Integer findTotalFutureOrders(@Param("startDate")LocalDateTime startDate, @Param("userId") long userId, @Param("payed") Boolean payed, @Param("joined") Boolean joined);
 
 
     @Query("""
-select COUNT(o) from Menu o where o.date <:startDate""")
-    Integer findTotalArchiveOrders(@Param("startDate")LocalDateTime startDate);
+select COUNT(o) from Menu o
+where o.date <:startDate
+  AND o.user.id = :userId
+  AND (:payed IS NULL OR o.isPayed = :payed)
+  AND (:joined IS NULL OR o.temporary = :joined)""")
+    Integer findTotalArchiveOrders(@Param("startDate")LocalDateTime startDate, @Param("userId") long userId, @Param("payed") Boolean payed, @Param("joined") Boolean joined);
 
 
     @Query(

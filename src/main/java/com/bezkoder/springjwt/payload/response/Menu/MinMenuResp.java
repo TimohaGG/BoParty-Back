@@ -22,6 +22,7 @@ public class MinMenuResp {
     @Column(nullable = true)
     private String client;
     private double totalPrice;
+    private boolean payed;
     private boolean temporary;
 
 }

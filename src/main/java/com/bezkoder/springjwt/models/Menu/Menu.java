@@ -574,6 +574,7 @@ public class Menu {
                 .id(this.id)
                 .client(this.client)
                 .date(this.date)
+                .payed(this.isPayed)
                 .temporary(this.temporary)
                 .build();
     }

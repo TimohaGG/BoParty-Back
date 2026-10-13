@@ -109,6 +109,10 @@ public class ExpencesService {
         Menu menu = this.menuRepos.findById(req.getMenuId())
                 .orElseThrow(() -> new NoContentException("Menu not found"));
 
+        if (!menu.isPayed()) {
+            throw new OrderCreateException("Statistics can be added only for payed orders");
+        }
+
         expences.setMenu(menu);
         replaceWaiters(expences, req.getStaff());
         replaceOtherExpences(expences, req.getOtherExpences());

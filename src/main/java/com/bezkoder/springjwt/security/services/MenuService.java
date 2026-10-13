@@ -358,18 +358,18 @@ public class MenuService {
         return req.isStatus();
     }
 
-    public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive, long userId) {
+    public List<MenuCardResponse> getOrdersInPage(Pageable pageable, boolean archive, long userId, Boolean payed, Boolean joined) {
         if(archive)
-            return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(),userId, pageable).toList();
+            return this.menuRepos.findAllForListArchive(LocalDate.now().atStartOfDay(), userId, payed, joined, pageable).toList();
         else
-            return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(),userId, pageable).toList();
+            return this.menuRepos.findAllForList(LocalDate.now().atStartOfDay(), userId, payed, joined, pageable).toList();
     }
 
-    public Integer getOrdersAmount(boolean archive) {
+    public Integer getOrdersAmount(boolean archive, long userId, Boolean payed, Boolean joined) {
         if(archive)
-            return this.menuRepos.findTotalArchiveOrders(LocalDate.now().atStartOfDay());
+            return this.menuRepos.findTotalArchiveOrders(LocalDate.now().atStartOfDay(), userId, payed, joined);
         else
-            return this.menuRepos.findTotalFutureOrders(LocalDate.now().atStartOfDay());
+            return this.menuRepos.findTotalFutureOrders(LocalDate.now().atStartOfDay(), userId, payed, joined);
     }
 
     @Transactional

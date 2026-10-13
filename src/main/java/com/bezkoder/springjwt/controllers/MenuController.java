@@ -65,8 +65,12 @@ public class MenuController {
     }
 
     @GetMapping("/amount")
-    public ResponseEntity<Integer> getOrdersAmount(boolean archive) {
-        return ResponseEntity.ok(this.menuService.getOrdersAmount(archive));
+    public ResponseEntity<Integer> getOrdersAmount(boolean archive, @RequestParam(required = false) Boolean payed, @RequestParam(required = false) Boolean joined) {
+        User current = this.userDetailsService.getCurrentUser();
+        if(current==null) {
+            throw new UserNotFoundException("Can't find current user");
+        }
+        return ResponseEntity.ok(this.menuService.getOrdersAmount(archive, current.getId(), payed, joined));
     }
 
 //    @GetMapping("/get/min")
@@ -80,13 +84,13 @@ public class MenuController {
 //    }
 
     @GetMapping("/get/min")
-    public ResponseEntity<List<MenuCardResponse>> getAllMin(int pageSize, int currentPage, boolean archive) {
+    public ResponseEntity<List<MenuCardResponse>> getAllMin(int pageSize, int currentPage, boolean archive, @RequestParam(required = false) Boolean payed, @RequestParam(required = false) Boolean joined) {
         User current = this.userDetailsService.getCurrentUser();
         if(current==null) {
             throw new UserNotFoundException("Can't find current user");
         }
         Pageable pageable = PageRequest.of(currentPage, pageSize, Sort.by(Sort.Direction.DESC,"date"));
-        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable, archive, current.getId());
+        List<MenuCardResponse> res = this.menuService.getOrdersInPage(pageable, archive, current.getId(), payed, joined);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
