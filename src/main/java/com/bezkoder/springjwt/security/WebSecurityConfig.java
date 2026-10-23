@@ -109,7 +109,8 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
             "https://www.boparty.space",
             "http://www.boparty.space",
             "https://72.60.88.151:*",
-            "http://72.60.88.151:*"
+            "http://72.60.88.151:*",
+            "https://boparty-backend-70549713599.europe-west1.run.app"
     ));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
