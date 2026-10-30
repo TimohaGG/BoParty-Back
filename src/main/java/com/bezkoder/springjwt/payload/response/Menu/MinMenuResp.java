@@ -24,5 +24,7 @@ public class MinMenuResp {
     private double totalPrice;
     private boolean payed;
     private boolean temporary;
+    private boolean govTax;
+    private double govTaxAmount;
 
 }

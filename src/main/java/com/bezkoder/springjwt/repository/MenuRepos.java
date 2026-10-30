@@ -23,14 +23,14 @@ public interface MenuRepos extends JpaRepository<Menu, Long> {
 
     @Query("""
 select new com.bezkoder.springjwt.payload.response.Menu.MinMenuResp(
-o.id,o.date,o.client,o.totalPrice,o.isPayed,o.temporary
+o.id,o.date,o.client,o.totalPrice,o.isPayed,o.temporary,o.govTax,o.govTaxAmount
 ) from Menu o where MONTH(o.date) = MONTH(CURRENT_DATE) AND YEAR(o.date) = YEAR(CURRENT_DATE) order by o.date desc 
 """)
     List<MinMenuResp> findAllMin();
 
     @Query("""
 select new com.bezkoder.springjwt.payload.response.Menu.MinMenuResp(
-o.id, o.date, o.client, o.totalPrice, o.isPayed, o.temporary
+o.id, o.date, o.client, o.totalPrice, o.isPayed, o.temporary, o.govTax, o.govTaxAmount
 ) from Menu o
 where o.user.id = :userId
   and o.temporary = false

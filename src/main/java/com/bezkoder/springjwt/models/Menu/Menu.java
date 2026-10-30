@@ -576,6 +576,8 @@ public class Menu {
                 .date(this.date)
                 .payed(this.isPayed)
                 .temporary(this.temporary)
+                .govTax(this.govTax)
+                .govTaxAmount(this.govTaxAmount)
                 .build();
     }
 }
