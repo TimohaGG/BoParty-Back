@@ -134,6 +134,9 @@ public class PositionsService {
 
     public Position addPosition(PositionCreateDto positionCreateDto, MultipartFile image) {
         try{
+            if (positionCreateDto.getUnit() != null && this.unitRepos.findByUnitName(positionCreateDto.getUnit()) == null) {
+                throw new PositionCreateException("Unknown position unit");
+            }
             User currentUser = this.userDetailsService.getCurrentUser();
             Position position;
             if(positionCreateDto.getId() != 0){
@@ -150,6 +153,9 @@ public class PositionsService {
             position.setName(positionCreateDto.getName());
             position.setDescription(positionCreateDto.getDescription());
             position.setWeight(positionCreateDto.getWeight());
+            if (positionCreateDto.getUnit() != null) {
+                position.setUnit(positionCreateDto.getUnit());
+            }
             position.setPrice(positionCreateDto.getPrice());
             position.setMinimumAmount(positionCreateDto.getMinimumAmount() == null ? 10 : positionCreateDto.getMinimumAmount());
             position.setCategory(category);
@@ -288,7 +294,7 @@ public class PositionsService {
                 table.addCell(buildPositionImageCell(position));
                 table.addCell(buildPositionCookingImageCell(position));
                 table.addCell(buildPositionIngredientsCell(position));
-                table.addCell(this.pdfConfig.compactCell(formatPdfAmount(position.getWeight()) + " г", com.itextpdf.text.Font.BOLD));
+                table.addCell(this.pdfConfig.compactCell(position.getFormattedWeight(), com.itextpdf.text.Font.BOLD));
             }
         }
 
@@ -300,7 +306,7 @@ public class PositionsService {
         table.addCell(this.pdfConfig.compactCellBold("Фото", this.pdfConfig.accentTextColor));
         table.addCell(this.pdfConfig.compactCellBold("Приготування", this.pdfConfig.accentTextColor));
         table.addCell(this.pdfConfig.compactCellBold("Інгредієнти", this.pdfConfig.accentTextColor));
-        table.addCell(this.pdfConfig.compactCellBold("Вага", this.pdfConfig.accentTextColor));
+        table.addCell(this.pdfConfig.compactCellBold("Вихід", this.pdfConfig.accentTextColor));
 
         for (PdfPCell cell : table.getRow(0).getCells()) {
             cell.setBackgroundColor(this.pdfConfig.summaryHEaderColor);

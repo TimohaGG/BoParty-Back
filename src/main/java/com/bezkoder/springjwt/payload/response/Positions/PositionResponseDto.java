@@ -17,6 +17,7 @@ public class PositionResponseDto {
     private String name;
     private String description;
     private double weight;
+    private String unit;
     private double price;
     private int minimumAmount;
     private String imgUrl;

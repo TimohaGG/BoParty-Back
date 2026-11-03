@@ -55,7 +55,7 @@ public class PdfGenerator {
 
         posHeader.add("Найменування");
         posHeader.add("");
-        posHeader.add("Вихід, \nграм");
+        posHeader.add("Вихід");
         posHeader.add("К-сть порцій");
         posHeader.add("Ціна, \nгрн");
 
@@ -179,7 +179,7 @@ public class PdfGenerator {
             }
 
 
-            table.addCell(getDefaultCell(String.valueOf(((int)pos.getPosition().getWeight())), mainFont));
+            table.addCell(getDefaultCell(pos.getPosition().getFormattedWeight(), mainFont));
             table.addCell(getDefaultCell(String.valueOf(pos.getAmount()), mainFont));
             table.addCell(getDefaultCell(String.valueOf(((int)pos.getPosition().getPrice())), mainFont));
         }

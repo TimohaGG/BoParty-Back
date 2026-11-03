@@ -52,7 +52,7 @@ public class Menu {
         guestsAmount = 0;
         duration = "";
         format = "Бокси";
-        phone = "0688714410";
+        phone = " ";
         deliveryType = "самовивіз";
         deliveryAddress = "";
         orderType = "бокси";
@@ -294,7 +294,7 @@ public class Menu {
             table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
             table.addCell(buildShoppingPositionImageCell(pdfConfig, pos));
             table.addCell(pdfConfig.smallCell(buildShoppingIngredientsText(pos)));
-            table.addCell(pdfConfig.defaultCell((int) pos.getPosition().getWeight() + " г"));
+            table.addCell(pdfConfig.defaultCell(pos.getPosition().getFormattedWeight()));
         }
 
         return table;
@@ -368,7 +368,7 @@ public class Menu {
                 table.addCell(" ");
             }
 
-            table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getWeight())));
+            table.addCell(pdfConfig.defaultCell(pos.getPosition().getFormattedWeight()));
             table.addCell(pdfConfig.defaultCell(Integer.toString(pos.getAmount())));
             table.addCell(pdfConfig.defaultCell(Integer.toString((int)pos.getPosition().getPrice())));
         });
@@ -378,7 +378,7 @@ public class Menu {
     private void generatePositionsHeaderDescription(PdfConfig pdfConfig, PdfPTable table) {
         table.addCell(pdfConfig.defaultCell("Найменування",1));
         table.addCell(pdfConfig.defaultCell(""));
-        table.addCell(pdfConfig.defaultCell("Вихід, грам",1));
+        table.addCell(pdfConfig.defaultCell("Вихід",1));
         table.addCell(pdfConfig.defaultCell("К-сть порцій",1));
         table.addCell(pdfConfig.defaultCell("Ціна, грн",1));
     }

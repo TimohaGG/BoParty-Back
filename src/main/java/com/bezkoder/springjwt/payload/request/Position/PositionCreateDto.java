@@ -14,7 +14,8 @@ public class PositionCreateDto {
     private long id;
     private String name;
     private String description;
-    private int weight;
+    private double weight;
+    private String unit;
     private int price;
     private Integer minimumAmount = 10;
     private String imgUrl;

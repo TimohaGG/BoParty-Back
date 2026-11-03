@@ -31,6 +31,11 @@ public class Position {
     @Column(nullable = false)
     private double weight;
 
+    @Builder.Default
+    @Column(nullable = false, length = 16)
+    @ColumnDefault("'г'")
+    private String unit = "г";
+
     @Column(nullable = false)
     private double price;
 
@@ -75,6 +80,15 @@ public class Position {
         this.ingredients = ingredients;
     }
 
+    public String getUnit() {
+        return unit == null ? "г" : unit;
+    }
+
+    @JsonIgnore
+    public String getFormattedWeight() {
+        return java.math.BigDecimal.valueOf(weight).stripTrailingZeros().toPlainString() + " " + getUnit();
+    }
+
     public void addIngredientAmount(IngredientAmount ingredientAmount) {
         if (this.ingredients == null) {
             this.ingredients = new ArrayList<>();
@@ -88,6 +102,7 @@ public class Position {
                 .name(name)
                 .description(description)
                 .weight(weight)
+                .unit(getUnit())
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
@@ -105,6 +120,7 @@ public class Position {
                 .name(name)
                 .description(description)
                 .weight(weight)
+                .unit(getUnit())
                 .price(price)
                 .minimumAmount(minimumAmount)
                 .imgUrl(imgUrl)
